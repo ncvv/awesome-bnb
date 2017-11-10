@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 
 def inspect_dataset(dataset):
@@ -13,11 +15,11 @@ def inspect_dataset(dataset):
     
 def main():
     print('Listings Subset: ' + '\n')
-    listings_subset = pd.read_csv('../data/subset/listings_sub.csv')
+    listings_subset = pd.read_csv(os.path.join('..', 'data', 'subset', 'listings_sub.csv'))
     inspect_dataset(listings_subset)
 
     print(('\n' * 2) + 'Reviews Subset: ' + '\n')
-    reviews_subset = pd.read_csv('../data/subset/reviews_sub.csv')
+    reviews_subset = pd.read_csv(os.path.join('..', 'data', 'subset', 'reviews_sub.csv'))
     inspect_dataset(reviews_subset)
 
 if __name__ == '__main__':
