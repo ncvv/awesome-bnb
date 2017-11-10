@@ -16,11 +16,11 @@ def inspect_dataset(dataset):
     
 def main():
     print('Listings Subset: ' + '\n')
-    listings_subset = io.read_csv('../data/subset/listings_sub.csv')
+    listings_subset = io.read_csv('data/subset/listings_sub.csv')
     inspect_dataset(listings_subset)
 
     print(('\n' * 2) + 'Reviews Subset: ' + '\n')
-    reviews_subset = io.read_csv('../data/subset/reviews_sub.csv')
+    reviews_subset = io.read_csv('data/subset/reviews_sub.csv')
     inspect_dataset(reviews_subset)
 
 if __name__ == '__main__':

@@ -14,5 +14,5 @@ def write_csv(dataframe, path):
 
 def get_universal_path(file_path):
     ''' Return universal path to file that works on every operating system. '''
-    args = file_path.split('/')
+    args = ['..'] + file_path.split('/')
     return os.path.join(*args)
