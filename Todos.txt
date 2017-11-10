@@ -1,4 +1,4 @@
 1- Daten Sammeln - DONE
 2- andere Features Crawlen?
-3- Straßen auf Bezirk Mappen
+3- Straßen auf Bezirk Mappen - wir haben sowohl Adressen als auch Bezirke in der Datei, also müssen wir das glaub nicht machen
 4-
