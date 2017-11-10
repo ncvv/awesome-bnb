@@ -1,0 +1,4 @@
+1- Daten Sammeln - DONE
+2- andere Features Crawlen?
+3- Straßen auf Bezirk Mappen
+4-
