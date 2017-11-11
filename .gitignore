@@ -103,5 +103,4 @@ ENV/
 
 # Specific to this project
 .vscode
-data/original/listings.csv
-data/original/reviews.csv
+data/original/*
