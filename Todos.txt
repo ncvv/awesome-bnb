@@ -16,9 +16,9 @@ DONE host_listings_counts raus weil der calculated house_listings genauer aussie
 EVTL raus neighbourhood
 16  - zip code all upper case- double entries map to first key [NADJA]
 17 - was machen wir mit square feet? Column nicht ausgefüllt
-18 - data type of price is polynomial>> change to real - remove  $ before numbers
+18 - data type of price is polynomial>> change to real - remove  $ before numbers[HELENE]
 19 - reviews_XX so wichtig? wie damit umgehen?
-20 - wie errechnet sich review-score
+20 - wie errechnet sich review-score [HELENE]
 21 - Einträge raus bei denen host_id oder host_name null 
 
 
