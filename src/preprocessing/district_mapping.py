@@ -1,15 +1,16 @@
 import sys
 sys.path.append('../')
-
+import pandas as pd
 import utilities.io as io
+import tools.helper_functions as helper
 
 #doc = pd.read_csv(os.path.join('..', '..', 'data', 'subset', 'listings_sub.csv'))
 #from .tools import helperFunctions
 
-#doc = pd.read_csv("../../data/subset/listings_sub.csv")
-doc= pd.read_csv(r"C:\Users\Wifo\Documents\DMProject\DM1-Teamproject\data\original\listings.csv")
-barriers = pd.read_csv(r"C:\Users\Wifo\Documents\DMProject\DM1-Teamproject\data\original\neighbourhoods.csv")
-listings = pd.read_csv (r"C:\Users\Wifo\Documents\DMProject\DM1-Teamproject\data\processed\listings_processed.csv")
+doc = io.read_csv("../../data/subset/listings_sub.csv")
+#doc= pd.read_csv(r"C:\Users\Wifo\Documents\DMProject\DM1-Teamproject\data\original\listings.csv")
+#barriers = pd.read_csv(r"C:\Users\Wifo\Documents\DMProject\DM1-Teamproject\data\original\neighbourhoods.csv")
+#listings = pd.read_csv (r"C:\Users\Wifo\Documents\DMProject\DM1-Teamproject\data\processed\listings_processed.csv")
 
 frame = pd.DataFrame(doc)
 #print(len(frame.columns))
@@ -69,6 +70,8 @@ def uniqueValues(table):
 #uniqueValues(barriers)
 # there is no neighbourhood group so this can be cut from the table neighbourhoods (1.st col)
 map = listings[['street', 'zipcode']]
+helper.uniqueValues(map)
+
 #uniqueValues(map)
 #print(map)
 #print (len(listings.zipcode))
