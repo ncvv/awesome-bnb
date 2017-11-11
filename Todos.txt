@@ -1,6 +1,6 @@
 1- Daten Sammeln - DONE
 2- andere Features Crawlen?
-3- Straßen auf Bezirk Mappen [Nadja]
+3- Straßen auf Bezirk Mappen  - wir haben sowohl Adressen als auch Bezirke in der Datei, also müssen wir das glaub nicht machen [Nadja]
 4- Nur Wohnungen nutzen die noch existieren - rausfiltern [Nico]
 5- Daten Visualisieren - Bewertungen Attribute, Bezirke, Heatmap - Datenset kennenlernen [ALLE]
 6- nur EN reviews 
@@ -8,6 +8,25 @@
 8- TODO datenset jeder ansehen die ersten 1000  Einträge Spalte für Spalte
 9- Kommata rausmachen Nico
 10- how to handel nan values in rows?
+11- host location make the values binary - 1 in london 0- outside london
+12- host response time - in buckets ? Equal width?
+13- host_neighbourhood & host_total_listings_count & street  & city & requires_license RAUS
+13.1 host_listings_counts raus weil der calculated house_listings genauer aussieht
+14- host verification einzelne values in spalten umwandeln
+15- EVTL raus neighbourhood
+16  - zip code all upper case- double entries map to first key
+17 - was machenw ir mir square feet? Column nicht ausgefüllt
+18 - data type of price is polynomial>> change to real - remove  $ before numbers
+19 - reviews_XX so wichtig? wie damit umgehen?
+20 - wie errechnet sich review-score
+21 - Einträge raus bei denen host_id oder host_name null interessant
 
+
+
+
+
+
+Pesentation 
+- reviews_xx veranschaulichen >> & implicationen erläutern
 
 

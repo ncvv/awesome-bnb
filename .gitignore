@@ -102,6 +102,5 @@ ENV/
 
 # Specific to this project
 .vscode
-data/original/listings.csv
-data/original/reviews.csv
 Test2.py
+data/original/*

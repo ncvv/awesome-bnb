@@ -6,15 +6,16 @@ import pandas as pd
 #from .tools import helperFunctions
 
 #doc = pd.read_csv("../../data/subset/listings_sub.csv")
-doc= pd.read_csv(r"C:\Users\Wifo\Documents\DMProject\DM1-Teamproject\data\subset\listings_sub.csv")
-barriers = pd.read_csv(r"C:\Users\Wifo\Dropbox\1 MASTER\1 FS - HWS 2017_8\IE 500 - Data Mining\DM project\Daten\neighbourhoods.csv")
+doc= pd.read_csv(r"C:\Users\Wifo\Documents\DMProject\DM1-Teamproject\data\original\listings.csv")
+barriers = pd.read_csv(r"C:\Users\Wifo\Documents\DMProject\DM1-Teamproject\data\original\neighbourhoods.csv")
+listings = pd.read_csv (r"C:\Users\Wifo\Documents\DMProject\DM1-Teamproject\data\processed\listings_processed.csv")
 
 frame = pd.DataFrame(doc)
 #print(len(frame.columns))
 #get the important cloumn indices
 #'host_neighbourhood'
 #allColumns = frame.columns
-print(frame.columns.values)
+#print(frame.columns.values)
 one = frame.columns.get_loc('host_neighbourhood')
 #'street' 
 two = frame.columns.get_loc('street')
@@ -54,6 +55,7 @@ cutFrame = frame[['host_neighbourhood', 'street','neighbourhood','neighbourhood_
 for column_name in column_list:
     print(df."[column_name]".unique())
 '''
+cutFrame = cutFrame[3000:3500]
 def uniqueValues(table):
     for col in table:
         print(col)
@@ -61,7 +63,16 @@ def uniqueValues(table):
         print("\n")
 
 
-uniqueValues(cutFrame)
+#uniqueValues(cutFrame)
 
-uniqueValues(barriers)
+#uniqueValues(barriers)
 # there is no neighbourhood group so this can be cut from the table neighbourhoods (1.st col)
+map = listings[['street', 'zipcode']]
+#uniqueValues(map)
+#print(map)
+#print (len(listings.zipcode))
+
+map_count = map.groupby('zipcode')['zipcode'].nunique() #.count()
+print(map_count)
+#print(map_count.count())
+
