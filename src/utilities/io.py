@@ -7,7 +7,8 @@ import pandas as pd
 
 def remove_column_df(df, col_name):
     ''' Remove a column from a dataframe. '''
-    return df.drop(col_name, axis=1)
+    df = df.drop(col_name, axis=1)
+    return df
 
 def remove_line_df(df, col_name, value):
     ''' Remove a line from a dataframe in the given column with a specific value.
@@ -20,11 +21,13 @@ def remove_line_df(df, col_name, value):
 def remove_empty_line_df(df, col_name):
     ''' Remove lines where value is empty in column 'col_name' from the dataframe. '''
     df = df[pd.notnull(df[col_name])]
+    return df
 
 def remove_empty_lines_df(df, col_names):
     ''' Remove a list of lines where value is empty from the dataframe. '''
     for name in col_names:
         remove_empty_line_df(df, name)
+    return df
 
 def append_column_df(df, col_name, dct, key='id'):
     ''' Takes a dictionary and appends it as a column to a dataframe based on key values.
@@ -49,9 +52,11 @@ def append_column_df(df, col_name, dct, key='id'):
         2    999    NaN
     '''
     df[col_name] = df[key].map(dct)
+    return df
 
-# ToDo for joining listings and listings_text on key
-#def merge_df(df, merge_df, key):
+def merge_df(df, df_m, key='id'):
+    ''' Merge two dataframes on the given key. (Suitable for merging listings_processed and listings_text_processed.) '''
+    return pd.merge(df, df_m, on=key)
 
 def read_csv(path):
     ''' Read in a .csv file and return it as a pandas df. '''

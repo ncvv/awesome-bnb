@@ -32,21 +32,47 @@ class Preprocessor(object):
                 print(str(i) + ' is not on Air anymore; content-length: ' + str(content_length))
                 num_apts -= 1
             except KeyError:
-                print(str(i) + 'is still on Air.')
+                print(str(i) + ' is still on Air.')
         print('{0:.2f}% of Apartments are still on Air.'.format(float(num_apts / len(ids)) * 100))
+    
+    ### Insert methods here
+    #def example_method(self, further_parameters, default_parameter=5):
+    #    print('this is a ' + str(further_parameters) + ' with default_parameter=' + str(default_parameter))
+
+    ###
 
     def process(self):
         ''' Main preprocessing method where all parts are tied together. '''
-        # Order of this process, see process_order.txt
+        # Crawl Airbnb.com page and check if listings are still available
         if self.crawl:
             self.check_onair()
+        # Remove lines from pandas dataframe with empty values in columns id, host_id and square_feet
         io.remove_empty_lines_df(self.listings, ['id', 'host_id', 'square_feet'])
+        
+        ### Insert method calls here
+        #self.example_method('test')
+        #self.example_method(further_parameters='test') #same result
+        #self.example_method(further_parameters='test', 4) #different default parameter
+        #self.example_method(further_parameters='test', default_parameter=4) #same result again
+
+        
+        ###
+
+        # After all processing steps are done in listings and listings_text_processed, merge them on key = 'id'
+        self.listings = io.merge_df(self.listings, self.listings_text, 'id')
+
+        # After all processing setps are done in reviews.csv and processed text is grouped by id, merge it with listings
+        # Maybe we have to overthink this (for example: do we have columns with the same name in the processed listings_text and reviews?
+        #                                  Avoid this by appending _lt or _rev at the new columns' names)
+        self.listings = io.merge_df(self.listings, self.reviews, 'id')
+        
+        # After all processing steps are done, write the listings file to the playground (this will be changed to ../data/final/_.csv)
+        #io.write_csv(self.listings, '../data/playground/dataset.csv')
 
 def process_listings(listings):
     ''' Process listings and split into two files,
         one file with id and unprocessed text features and (listings_text_processed)
         one file with id and non-textual features (listings_processed). '''
-
     listings_text = listings[['id', 'transit', 'house_rules', 'amenities', 'description', 'neighborhood_overview']]
 
     drop_list = ['listing_url', 'scrape_id', 'last_scraped', 'thumbnail_url', 'medium_url', 'picture_url', 'xl_picture_url', 'host_url', 'host_thumbnail_url', 'host_picture_url']
