@@ -45,6 +45,20 @@ class Preprocessor(object):
         df.loc[df['host_response_rate'] == 0, 'hrr_bins'] = 'Bad'
         return df
 
+    def Change_into_Bin_host_location():
+     with open('../data/processed/listings_processed.csv', 'r') as infile, open('../data/playground/neu1.csv', 'w') as outfile:
+       reader = DictReader(infile)
+       writer = DictWriter(outfile, fieldnames=reader.fieldnames)
+       writer.writeheader()
+        for row in reader:
+            if "lon" in row['host_location'].lower():
+                row['host_location'] = 1
+            else:
+                row['host_location'] = 0
+            writer.writerow(row)     
+
+
+
     def process(self):
         ''' Main preprocessing method where all parts are tied together. '''
         # Crawl Airbnb.com page and check if listings are still available
