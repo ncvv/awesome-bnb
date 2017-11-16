@@ -3,6 +3,7 @@
     tokenizing, stemming as well as stopword removal. '''
 
 from src.utilities import io
+from langdetect import detect
 
 class Preprocessor(object):
     ''' Preprocesses data with different methods. '''
@@ -36,7 +37,24 @@ class Preprocessor(object):
     #def example_method(self, further_parameters, default_parameter=5):
     #    print('this is a ' + str(further_parameters) + ' with default_parameter=' + str(default_parameter))
 
-    ###
+    ###Remove English Reviews
+    ###Ich weiß nicht ob das so funktioniert, bzw. ob ich es richtig integriert habe
+    def check_language(self):
+        com = self.reviews['comments']
+
+        for i in range(0,len(com)):
+            string = com[i]
+            language_list = []
+            lang = detect(string)
+            language_list.append(lang)
+
+        j = 0
+        for j in range(0,len(language_list)):
+            index_list = []
+            if language_list[j] != ['en']:
+                index_list.append(j)
+                j = j + 1
+
 
     def bin_host_rate(self, dct):
         print()

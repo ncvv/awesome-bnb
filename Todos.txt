@@ -5,7 +5,7 @@ Tasks:
 
 NO - Straßen auf Bezirk Mappen -> wir haben sowohl Adressen als auch Bezirke in der Datei, also müssen wir das glaub nicht machen 
 05 - Daten Visualisieren - Heatmap [Helene]
-06 - nur EN reviews [Kerstin]
+DONE - nur EN reviews [Kerstin]
 11 - host location make the values binary - 1 in london 0 - outside london [Dennis]
 18 - data type of price is polynomial -> change to real by removing $ before numbers [Helene]
 22 - host response rate - in buckets ? Equal width/Equal frequency/Binary? [Nico]
