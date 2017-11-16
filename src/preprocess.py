@@ -55,7 +55,17 @@ class Preprocessor(object):
                 row['host_location'] = 1
             else:
                 row['host_location'] = 0
-            writer.writerow(row)     
+            writer.writerow(row)  
+
+
+    def delete_dollar(self):
+    with open('listings_processed.csv','r') as infile, open('listings_processed2.csv','w') as outfile:
+        reader=csv.DictReader(infile)
+        writer=csv.DictWriter(outfile, fieldnames=reader.fieldnames)
+        writer.writeheader()
+        for line in reader:
+            line['price'] = line['price'].replace('$', '')
+            writer.writerow(line)   
 
 
 
