@@ -5,19 +5,6 @@ import csv
 
 import pandas as pd
 
-#TBR
-def unique_values(table):
-    ''' Print unique values for table columns '''
-    for col in table:
-        print(col)
-        print(table[col].unique())
-        print('\n')
-
-def remove_column_df(df, col_name):
-    ''' Remove a column from a dataframe. '''
-    df = df.drop(col_name, axis=1)
-    return df
-
 def remove_line_by_id_df(df, value, col_name='id'):
     ''' Remove a line from a dataframe in the given column with a specific value.
         If more than one line apply, remove all of them.
@@ -27,8 +14,9 @@ def remove_line_by_id_df(df, value, col_name='id'):
 
 def remove_lines_by_id_df(df, ids):
     ''' Remove a list or set of ids from the dataframe and return it. '''
-    for i in ids:
-        df = remove_line_by_id_df(df, i)
+    if ids:
+        for i in ids:
+            df = remove_line_by_id_df(df, i)
     return df
 
 def append_dict_as_column_df(df, col_name, dct, key='id'):
@@ -56,9 +44,11 @@ def append_dict_as_column_df(df, col_name, dct, key='id'):
     return df
 
 def get_column_as_dict_df(df, col_name):
+    ''' Return the given column in a dict with key: id, value: value of the column. '''
     return pd.Series(df[col_name].values.tolist(), index=df['id'].values.tolist()).to_dict()
 
 def get_column_as_list_df(df, col_name):
+    ''' Return the given column as a list, without pandas index. '''
     return df[col_name].values.tolist()
 
 def merge_df(df, df_m, key='id'):

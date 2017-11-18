@@ -22,13 +22,13 @@ def inspect_dataset(dataset):
 def main():
     ''' Main method. '''
     #listings = io.read_csv('../data/original/listings.csv')
-    #pp.process_listings(listings)
+    #pp.prepare_listings_data(listings)
 
     session = requests.Session()
     reviews = io.read_csv('../data/original/reviews.csv')
     listings = io.read_csv('../data/processed/listings_processed.csv')
     listings_text = io.read_csv('../data/processed/listings_text_processed.csv')
-    preprocessor = pp.Preprocessor(session, listings, listings_text, reviews)
+    preprocessor = pp.Preprocessor(False, session, listings, listings_text, reviews)
     preprocessor.process()
 
 if __name__ == '__main__':
