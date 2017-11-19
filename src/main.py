@@ -21,8 +21,8 @@ def inspect_dataset(dataset):
 
 def main():
     ''' Main method. '''
-    #listings = io.read_csv('../data/original/listings.csv')
-    #pp.prepare_listings_data(listings)
+    listings = io.read_csv('../data/original/listings.csv')
+    pp.prepare_listings_data(listings)
 
     session = requests.Session()
     reviews = io.read_csv('../data/original/reviews.csv')

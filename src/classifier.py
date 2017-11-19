@@ -1,6 +1,5 @@
 import pandas as pd
 import io_util as io
-<<<<<<< HEAD
 import numpy as np
 import graphviz
 import pydotplus
@@ -10,9 +9,6 @@ from sklearn.metrics import accuracy_score
 from sklearn import tree
 from sklearn.model_selection import cross_val_score
 from sklearn.utils.multiclass import unique_labels
-=======
-from sklearn.neighbors import KNeighborsClassifier
->>>>>>> 4965d81712787e67495fdc8b1c6723790e141ae3
 
 def naive_bayes(dataset):
     '''Trains and tests a Naive Bayes Classifier with selected features'''

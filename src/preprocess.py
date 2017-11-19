@@ -69,37 +69,6 @@ class Preprocessor(object):
                 else:
                     dct[i] = np.nan
             else:
-                row['host_location'] = 0
-            writer.writerow(row)  
-
-def delete_dollar(self):
-    with open('listings_processed.csv','r') as infile, open('listings_processed2.csv','w') as outfile:
-        reader=csv.DictReader(infile)
-        writer=csv.DictWriter(outfile, fieldnames=reader.fieldnames)
-        writer.writeheader()
-        for line in reader:
-            line['price'] = line['price'].replace('$', '')
-            writer.writerow(line) 
-
-
-            writer.writerow(row)     
-    ###Remove English Reviews
-    ###Ich weiß nicht ob das so funktioniert, bzw. ob ich es richtig integriert habe
-    def check_language(self):
-    com = self.reviews['comments']
-
-    for i in range(0,len(com)):
-        string = com[i]
-        language_list = []
-        lang = detect(string)
-        language_list.append(lang)
-
-    j = 0
-    for j in range(0,len(language_list)):
-        index_list = []
-        if language_list[j] != ['en']:
-        index_list.append(j)
-        j = j + 1
                 dct[i] = np.nan
         return dct
 
