@@ -14,6 +14,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.utils.multiclass import unique_labels
 from category_encoders.ordinal import OrdinalEncoder
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors.nearest_centroid import NearestCentroid
 
 
 
@@ -100,15 +101,32 @@ def knn(dataset):
     knn_estimator = KNeighborsClassifier(4)
     knn_estimator.fit(data_train, target_train)
 
-    predict = knn_estimator.predict(data_test)
+    prediction = knn_estimator.predict(data_test)
     #print('Prediction of KNN Classifier:{}'.format(predict))
 
-    accuracy = accuracy_score(target_test, predict)
+    accuracy = accuracy_score(target_test, prediction)
     print('Accuracy of KNN Classifier:{}'.format(accuracy))
 
+def nearest_centroid(dataset):
+    encoder = OrdinalEncoder()
+    dataset_encoded = encoder.fit_transform(dataset)
+    listings_data=dataset_encoded.drop(columns=['id','perceived_quality'])
+    listings_target= dataset_encoded['perceived_quality']
 
+    data_train, data_test, target_train, target_test = io.split_dataset_regular(listings_data,listings_target)
+    
+    nearest_cent = NearestCentroid()
+    nearest_cent.fit(data_train, target_train)
+    prediction = nearest_cent.predict(data_test)
+
+    accuracy = accuracy_score(target_test, prediction)
+    print('Accuracy of Nearest Centroid Classifier:{}'.format(accuracy))
+
+
+'''Run classifiers'''
 dataset = io.read_csv('../data/playground/dataset.csv')
 #naive_bayes(dataset)
-knn(dataset)
+#knn(dataset)
+nearest_centroid(dataset)
 
 
