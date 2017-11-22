@@ -18,8 +18,6 @@ from sklearn.neighbors.nearest_centroid import NearestCentroid
 
 
 
-from sklearn.neighbors import KNeighborsClassifier
-
 def naive_bayes(dataset):
     '''Trains and tests a Naive Bayes Classifier with selected features'''
     ###können wir das nicht für alle methoden verwenden bis zu data_train, data_test,...?
