@@ -90,3 +90,13 @@ class Classifier(object):
         acc = accuracy_score(self.target_test, prediction) * 100
         if acc > self.accuracy_svm:
             self.accuracy_svm = acc
+
+    def classify_dt(self):
+        ''' Clasificiation with Decision Tree'''
+        decision_tree = tree.DecisionTreeClassifier(max_depth=3,criterion="gini")
+        decision_tree.fit(self.data_train,self.target_train) 
+        prediction = decision_tree.predict(self.data_test)
+        self.accuracy_dt = decision_tree.score(self.target_test,prediction)
+        acc = accuracy_score(self.target_test,prediction) * 100
+        if acc > self.accuracy_dt:
+            self.accuracy_dt = acc
