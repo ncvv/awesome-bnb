@@ -14,7 +14,7 @@ import io_util as io
 class Classifier(object):
     ''' Class for classification. '''
 
-    def __init__(self, dataset, path):
+    def __init__(self, dataset, path, display_columns, ignore_list):
         self.dataset = dataset
         
         self.data_train = None
@@ -28,7 +28,10 @@ class Classifier(object):
         self.accuracy_svm = 0
         self.accuracy_nc = 0
 
-        self.encode_and_split(path)
+        self.display_columns = display_columns
+        
+        self.encode_and_split(path, ignore_list)
+        
 
     #toString() equivalent to Java.
     def __str__(self):
@@ -40,7 +43,7 @@ class Classifier(object):
                "\nAccuracy NC:  " + '{0:.2f}%'.format(self.accuracy_nc) +
                "\n\nMax.: " + '{0:.2f}%'.format(max(self.accuracy_nb, self.accuracy_knn, self.accuracy_dt, self.accuracy_svm, self.accuracy_nc)))
 
-    def encode_and_split(self, path):
+    def encode_and_split(self, path, ignore_list):
         ''' Encode datatset and split it into training and test data. '''
         if os.path.exists(path):
             data_encoded = io.read_csv(path)
@@ -52,6 +55,9 @@ class Classifier(object):
 
         target = data_encoded['perceived_quality']
         data_encoded.drop('perceived_quality', axis=1, inplace=True)
+        data_encoded.drop(ignore_list, axis=1, inplace=True)
+        if self.display_columns:
+            print('Columns:\n' + '\n'.join(list(data_encoded)) + '\n')
 
         self.data_train, self.data_test, self.target_train, self.target_test = train_test_split(data_encoded, target, test_size=0.2, random_state=42, stratify=target)
 

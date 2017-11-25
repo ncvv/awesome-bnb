@@ -27,7 +27,6 @@ def main(renew_listings=False):
 
     # Classification
     dataset = io.read_csv('../data/final/dataset.csv')
-    dataset.drop('id', axis=1, inplace=True)
     
     encoded_file_path = '../data/final/encoded_dataset'
 
@@ -45,16 +44,16 @@ def main(renew_listings=False):
     encoded_file_path += '_wotransit'
     
     # Drop Description TFIDF
-    #idx_tfidf_description = dataset.columns.get_loc("description_access")
-    #idx_tfidf_description_end = dataset.columns.get_loc("description_walk") + 1
-    #dataset.drop(dataset.columns[idx_tfidf_description: idx_tfidf_description_end], axis=1, inplace=True)
-    #encoded_file_path += '_wodescr'
+    idx_tfidf_description = dataset.columns.get_loc("description_access")
+    idx_tfidf_description_end = dataset.columns.get_loc("description_walk") + 1
+    dataset.drop(dataset.columns[idx_tfidf_description: idx_tfidf_description_end], axis=1, inplace=True)
+    encoded_file_path += '_wodescr'
     
     # Drop Neighborhood TFIDF
-    #idx_tfidf_neighborhood = dataset.columns.get_loc("neighborhood_overview_area")
-    #idx_tfidf_neighborhood_end = dataset.columns.get_loc("neighborhood_overview_walk") + 1
-    #dataset.drop(dataset.columns[idx_tfidf_neighborhood: idx_tfidf_neighborhood_end], axis=1, inplace=True)
-    #encoded_file_path += '_woneighbor'
+    idx_tfidf_neighborhood = dataset.columns.get_loc("neighborhood_overview_area")
+    idx_tfidf_neighborhood_end = dataset.columns.get_loc("neighborhood_overview_walk") + 1
+    dataset.drop(dataset.columns[idx_tfidf_neighborhood: idx_tfidf_neighborhood_end], axis=1, inplace=True)
+    encoded_file_path += '_woneighbor'
     
     # Drop House Rules TFIDF
     #idx_tfidf_house_rules = dataset.columns.get_loc("house_rules_allow")
@@ -63,13 +62,11 @@ def main(renew_listings=False):
     #encoded_file_path += '_wohrules'
 
     encoded_file_path += '.csv'
-
-    # Print Column Names
-    #print('Columns:\n' + '\n'.join(list(dataset)) + '\n')
+    
     #print('#Columns: ' + str(len(list(dataset))))
     #print('#Rows: ' + str(len(dataset)) + '\n')
     
-    classifier = cl.Classifier(dataset, encoded_file_path)
+    classifier = cl.Classifier(dataset, encoded_file_path, display_columns=False, ignore_list=['id', 'instant_bookable', 'require_guest_profile_picture', 'first_review', 'last_review'])
     for kn in range(1, 10):
         classifier.classify_knn(n=kn)
     classifier.classify_nb()
