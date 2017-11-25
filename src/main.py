@@ -21,8 +21,12 @@ def main(renew_listings=False):
         preprocessor.process()
 
     # Classification
+    file_name = 'dataset'
+    
     long_tfidf = False
-    file_name = 'dataset_2'
+    num_labels = 2
+
+    file_name += '_' + str(num_labels)
 
     if long_tfidf:
         file_name += '_long_tfidf'

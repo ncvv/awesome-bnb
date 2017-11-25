@@ -209,7 +209,7 @@ class Preprocessor(object):
         self.delete_dollar(self.listings)
 
         # Create and append label
-        self.create_label(self.listings, 5)
+        self.create_label(self.listings, 2)
 
         self.listings_text.dropna(subset=['transit', 'house_rules', 'description', 'neighborhood_overview'], inplace=True)
         self.parse_amenities(self.listings_text)
@@ -223,15 +223,15 @@ class Preprocessor(object):
 
         # 'transit', 'house_rules', 'description', 'neighborhood_overview'
         # wenig features (weniger: 0.4 0.5; mehr: 0.1 0.9)
-        #house_rules = self.process_text(self.listings, 'house_rules', 0.15, 0.7)
-        #transit = self.process_text(self.listings, 'transit', 0.15, 0.7)
-        #description = self.process_text(self.listings, 'description', 0.3, 0.7)
-        #neighborhood = self.process_text(self.listings, 'neighborhood_overview', 0.18, 0.7)
+        house_rules = self.process_text(self.listings, 'house_rules', 0.15, 0.7)
+        transit = self.process_text(self.listings, 'transit', 0.15, 0.7)
+        description = self.process_text(self.listings, 'description', 0.3, 0.7)
+        neighborhood = self.process_text(self.listings, 'neighborhood_overview', 0.18, 0.7)
         # mehr features
-        house_rules = self.process_text(self.listings, 'house_rules', 0.1, 0.9)
-        transit = self.process_text(self.listings, 'transit', 0.1, 0.9)
-        description = self.process_text(self.listings, 'description', 0.1, 0.9)
-        neighborhood = self.process_text(self.listings, 'neighborhood_overview', 0.1, 0.9)
+        #house_rules = self.process_text(self.listings, 'house_rules', 0.1, 0.9)
+        #transit = self.process_text(self.listings, 'transit', 0.1, 0.9)
+        #description = self.process_text(self.listings, 'description', 0.1, 0.9)
+        #neighborhood = self.process_text(self.listings, 'neighborhood_overview', 0.1, 0.9)
 
         self.listings = pd.concat([self.listings, house_rules], axis=1)
         self.listings = pd.concat([self.listings, transit], axis=1)
@@ -241,7 +241,7 @@ class Preprocessor(object):
 
         # After all processing steps are done, write the listings file to the playground (this will be changed to ../data/final/_.csv)
         print('#Examples in the end: ' + str(len(self.listings)) + '\n#Columns in the end: ' + str(len(self.listings.columns))) # Printing the number of resulting examples for testing purposes and validation
-        io.write_csv(self.listings, '../data/final/dataset_5_long_tfidf.csv')
+        io.write_csv(self.listings, '../data/final/dataset_2.csv')
 
     @staticmethod
     def prepare_listings_data(listings):
