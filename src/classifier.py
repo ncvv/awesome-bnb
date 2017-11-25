@@ -1,6 +1,5 @@
 ''' Module containing methods for classification and evaluation of classifiers. '''
-import pandas as pd
-import io_util as io
+import os
 
 from category_encoders.ordinal import OrdinalEncoder
 from sklearn.neighbors import KNeighborsClassifier
@@ -10,12 +9,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.svm import SVC
 
+import io_util as io
+
 class Classifier(object):
     ''' Class for classification. '''
 
-    def __init__(self, dataset):
+    def __init__(self, dataset, path):
         self.dataset = dataset
-        self.dataset_encoded = None
         
         self.data_train = None
         self.data_test = None
@@ -28,7 +28,7 @@ class Classifier(object):
         self.accuracy_svm = 0
         self.accuracy_nc = 0
 
-        self.encode_and_split()
+        self.encode_and_split(path)
 
     #toString() equivalent to Java.
     def __str__(self):
@@ -40,13 +40,20 @@ class Classifier(object):
                "\nAccuracy NC:  " + '{0:.2f}%'.format(self.accuracy_nc) +
                "\n\nMax.: " + '{0:.2f}%'.format(max(self.accuracy_nb, self.accuracy_knn, self.accuracy_dt, self.accuracy_svm, self.accuracy_nc)))
 
-    def encode_and_split(self):
+    def encode_and_split(self, path):
         ''' Encode datatset and split it into training and test data. '''
-        encoder = OrdinalEncoder()
-        self.dataset_encoded = encoder.fit_transform(self.dataset[['experiences_offered', 'host_location', 'host_response_time', 'host_is_superhost', 'neighbourhood_cleansed', 'instant_bookable', 'cancellation_policy',
-                                                                   'require_guest_profile_picture', 'require_guest_phone_verification', 'calculated_host_listings_count', 'reviews_per_month', 'host_response_rate_binned', 'host_verification_binned']])
-        
-        self.data_train, self.data_test, self.target_train, self.target_test = train_test_split(self.dataset_encoded, self.dataset['perceived_quality'], test_size=0.2, random_state=42, stratify=self.dataset['perceived_quality'])
+        if os.path.exists(path):
+            data_encoded = io.read_csv(path)
+        else:
+            encoder = OrdinalEncoder()
+            data_encoded = encoder.fit_transform(self.dataset)
+            print('Encoding done for file: ' + str(path))
+            io.write_csv(data_encoded, path)
+
+        target = data_encoded['perceived_quality']
+        data_encoded.drop('perceived_quality', axis=1, inplace=True)
+
+        self.data_train, self.data_test, self.target_train, self.target_test = train_test_split(data_encoded, target, test_size=0.2, random_state=42, stratify=target)
 
     def classify_nb(self): 
         ''' Classification with Naive Bayes. '''
@@ -80,6 +87,6 @@ class Classifier(object):
         svm_estimator = SVC()
         svm_estimator.fit(self.data_train, self.target_train)
         prediction = svm_estimator.predict(self.data_test)
-        acc = svm_estimator.score(self.target_test, prediction) * 100
+        acc = accuracy_score(self.target_test, prediction) * 100
         if acc > self.accuracy_svm:
             self.accuracy_svm = acc
