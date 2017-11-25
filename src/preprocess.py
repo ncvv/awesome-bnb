@@ -160,10 +160,12 @@ class Preprocessor(object):
         stem_vectorizer = TfidfVectorizer(tokenizer=StemTokenizer(), stop_words='english', ngram_range=(1,1), min_df=min_df, max_df=max_df)
         stem_matrix = stem_vectorizer.fit_transform(df[col_name])
         df_tfidf = pd.DataFrame(stem_matrix.toarray(), columns=[col_name + '_' + x for x in stem_vectorizer.get_feature_names()])
-        print('For ' + str(col_name) + ' with min_df: ' + str(min_df) + ' and max_df: ' + str(max_df) + '\n' + '\n'.join(stem_vectorizer.get_feature_names()))
-        df.drop(col_name, axis=1, inplace=True)
-        res = pd.concat([df, df_tfidf], axis=1)
-        return df#res
+        #print('For ' + str(col_name) + ' with min_df: ' + str(min_df) + ' and max_df: ' + str(max_df) + '\n' + '\n'.join(stem_vectorizer.get_feature_names()))
+        #df.drop(col_name, axis=1, inplace=True)
+        #res = pd.concat([df, df_tfidf], axis=1)
+        #print("Appended " + str(col_name) + ".")
+        #return res
+        return df_tfidf
         
         #for tfidf, word in self.get_word_freq(stem_matrix, stem_vectorizer)[:20]:
         #    print("{:.3f} {}".format(tfidf, word))
@@ -215,24 +217,30 @@ class Preprocessor(object):
         self.listings_text.dropna(subset=['transit', 'house_rules', 'description', 'neighborhood_overview'], inplace=True)
         self.parse_amenities(self.listings_text)
         self.listings_text.drop('amenities', axis=1, inplace=True)
-
-        # 'transit', 'house_rules', 'description', 'neighborhood_overview'
-        # wenig features (weniger: 0.4 0.5; mehr: 0.1 0.9)
-        self.listings_text = self.process_text(self.listings_text, 'house_rules', 0.15, 0.7)
-        self.listings_text = self.process_text(self.listings_text, 'transit', 0.15, 0.7)
-        self.listings_text = self.process_text(self.listings_text, 'description', 0.3, 0.7)
-        self.listings_text = self.process_text(self.listings_text, 'neighborhood_overview', 0.18, 0.7)
-        # mehr features
-        #self.listings_text = self.process_text(self.listings_text, 'house_rules', 0.1, 0.9)
-        #self.listings_text = self.process_text(self.listings_text, 'transit', 0.1, 0.9)
-        #self.listings_text = self.process_text(self.listings_text, 'description', 0.1, 0.9)
-        #self.listings_text = self.process_text(self.listings_text, 'neighborhood_overview', 0.1, 0.9)
         
         # Normalize columns with numeric values
         self.normalize(self.listings, column_list = ['accommodates', 'bathrooms', 'bedrooms', 'beds', 'price', 'security_deposit', 'cleaning_fee', 'guests_included', 'extra_people', 'minimum_nights', 'maximum_nights', 'availability_30', 'availability_60', 'availability_90', 'availability_365', 'number_of_reviews', 'calculated_host_listings_count'])
 
         # After all processing steps are done in listings and listings_text_processed, merge them on key = 'id'
         self.listings = io.merge_df(self.listings, self.listings_text, 'id')
+
+        # 'transit', 'house_rules', 'description', 'neighborhood_overview'
+        # wenig features (weniger: 0.4 0.5; mehr: 0.1 0.9)
+        house_rules = self.process_text(self.listings, 'house_rules', 0.15, 0.7)
+        transit = self.process_text(self.listings, 'transit', 0.15, 0.7)
+        description = self.process_text(self.listings, 'description', 0.3, 0.7)
+        neighborhood = self.process_text(self.listings, 'neighborhood_overview', 0.18, 0.7)
+        # mehr features
+        #house_rules = self.process_text(self.listings, 'house_rules', 0.1, 0.9)
+        #transit = self.process_text(self.listings, 'transit', 0.1, 0.9)
+        #description = self.process_text(self.listings, 'description', 0.1, 0.9)
+        #neighborhood = self.process_text(self.listings, 'neighborhood_overview', 0.1, 0.9)
+
+        self.listings = pd.concat([self.listings, house_rules], axis=1)
+        self.listings = pd.concat([self.listings, transit], axis=1)
+        self.listings = pd.concat([self.listings, description], axis=1)
+        self.listings = pd.concat([self.listings, neighborhood], axis=1)
+        self.listings.drop(['transit', 'house_rules', 'description', 'neighborhood_overview'], axis=1, inplace=True)
 
         # After all processing steps are done, write the listings file to the playground (this will be changed to ../data/final/_.csv)
         print('#Examples in the end: ' + str(len(self.listings))) # Printing the number of resulting examples for testing purposes and validation

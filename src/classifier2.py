@@ -26,8 +26,8 @@ class Classifier(object):
         self.accuracy_nb = 0
         self.accuracy_dt = 0
         self.accuracy_svm = 0
-        # TODO folgende Werte setzen - einfacher zu droppen
-       # idx_amenity
+        #TODO folgende Werte setzen - einfacher zu droppen
+        #idx_amenity
         #idx_ifidf
         self.encode_and_split()
 

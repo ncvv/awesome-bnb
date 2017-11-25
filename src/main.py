@@ -26,14 +26,27 @@ def main(renew_listings=False):
     #io.write_csv(plot_data, '../data/playground/visualization.csv')
 
     # Classification
-    #dataset = io.read_csv('../data/playground/dataset.csv')
-    #dataset.drop('id', axis=1, inplace=True)
+    dataset = io.read_csv('../data/playground/dataset.csv')
+    dataset.drop('id', axis=1, inplace=True)
     
-    #idx_amenity = dataset.columns.get_loc("Amenity_TV")
-    #idx_amenity_end = dataset.columns.get_loc ("Amenity_Paidparkingoffpremises")
-    #print(data.shape[1])
-    #data = dataset.drop(dataset.columns[idx_amenity-1: idx_amenity_end+1], axis =1, inplace=False)
-    #print(data.shape[1])
+    idx_amenity = dataset.columns.get_loc("Amenity_TV")
+    idx_amenity_end = dataset.columns.get_loc ("Amenity_Paidparkingoffpremises")
+    
+    #idx_tfidf_transit = dataset.columns.get_loc("")
+    #idx_tfidf_transit_end = dataset.columns.get_loc("")
+    
+    #idx_tfidf_description = dataset.columns.get_loc("")
+    #idx_tfidf_description_end = dataset.columns.get_loc("")
+    
+    #idx_tfidf_neighborhood = dataset.columns.get_loc("")
+    #idx_tfidf_neighborhood_end = dataset.columns.get_loc("")
+    
+    #idx_tfidf_house_rules = dataset.columns.get_loc("")
+    #idx_tfidf_house_rules_end = dataset.columns.get_loc("")
+    
+    #print(dataset.shape[1])
+    #dataset.drop(dataset.columns[idx_amenity-1: idx_amenity_end+1], axis =1, inplace=True)
+    #print(dataset.shape[1])
     
     #classifier = cl.Classifier(dataset)
     #for kn in range(1, 10):
