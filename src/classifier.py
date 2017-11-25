@@ -1,131 +1,85 @@
+''' Module containing methods for classification and evaluation of classifiers. '''
 import pandas as pd
 import io_util as io
-import numpy as np
-import collections
 
-from sklearn.metrics import accuracy_score
-from sklearn.naive_bayes import GaussianNB
-#import graphviz
-#import pydotplus
-from sklearn.metrics import accuracy_score
-from sklearn import tree
-from sklearn.model_selection import cross_val_score, train_test_split
-from sklearn.utils.multiclass import unique_labels
 from category_encoders.ordinal import OrdinalEncoder
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors.nearest_centroid import NearestCentroid
+from sklearn.svm import SVC
 
+class Classifier(object):
+    ''' Class for classification. '''
 
+    def __init__(self, dataset):
+        self.dataset = dataset
+        self.dataset_encoded = None
+        
+        self.data_train = None
+        self.data_test = None
+        self.target_train = None
+        self.target_test = None
+        
+        self.accuracy_knn = 0
+        self.accuracy_nb = 0
+        self.accuracy_dt = 0
+        self.accuracy_svm = 0
+        self.accuracy_nc = 0
 
-def naive_bayes(dataset):
-    '''Trains and tests a Naive Bayes Classifier with selected features'''
-    ###können wir das nicht für alle methoden verwenden bis zu data_train, data_test,...?
-    encoder = OrdinalEncoder()
-    dataset_encoded = encoder.fit_transform(dataset)
-    listings_data=dataset_encoded.drop(columns=['id','perceived_quality'])
-    listings_target= dataset_encoded['perceived_quality']
-    
-    data_train, data_test, target_train, target_test = io.split_dataset_regular(listings_data,listings_target)
-    
-    naive_bayes = GaussianNB()
-    naive_bayes.fit(data_train, target_train)
-    prediction = naive_bayes.predict(data_test)
+        self.encode_and_split()
 
-    #nbresults=pd.DataFrame(data_test)
-    #quality_predicted = nbresults.assign(predicted_quality=prediction)
-    #io.write_csv(quality_predicted, '../data/playground/naivebayes.csv')
-    
-    accuracy=accuracy_score(target_test, prediction)
-    print('Accuracy of Naive Bayes Classifier:{}'.format(accuracy))
+    #toString() equivalent to Java.
+    def __str__(self):
+        return ("Classification Results:"
+               "\nAccuracy NB:  " + '{0:.2f}%'.format(self.accuracy_nb) +
+               "\nAccuracy kNN: " + '{0:.2f}%'.format(self.accuracy_knn) +
+               "\nAccuracy DT:  " + '{0:.2f}%'.format(self.accuracy_dt) +
+               "\nAccuracy SVM: " + '{0:.2f}%'.format(self.accuracy_svm) +
+               "\nAccuracy NC:  " + '{0:.2f}%'.format(self.accuracy_nc) +
+               "\n\nMax.: " + str(max(self.accuracy_nb, self.accuracy_knn, self.accuracy_dt, self.accuracy_svm, self.accuracy_nc)))
 
+    def encode_and_split(self):
+        ''' Encode datatset and split it into training and test data. '''
+        encoder = OrdinalEncoder()
+        self.dataset_encoded = encoder.fit_transform(self.dataset[['experiences_offered', 'host_location', 'host_response_time', 'host_is_superhost', 'neighbourhood_cleansed', 'instant_bookable', 'cancellation_policy',
+                                                                   'require_guest_profile_picture', 'require_guest_phone_verification', 'calculated_host_listings_count', 'reviews_per_month', 'host_response_rate_binned', 'host_verification_binned']])
+        
+        self.data_train, self.data_test, self.target_train, self.target_test = train_test_split(self.dataset_encoded, self.dataset['perceived_quality'], test_size=0.2, random_state=42, stratify=self.dataset['perceived_quality'])
 
+    def classify_nb(self): 
+        ''' Classification with Naive Bayes. '''
+        naive_bayes = GaussianNB()
+        naive_bayes.fit(self.data_train, self.target_train)
+        prediction = naive_bayes.predict(self.data_test)
+        acc = accuracy_score(self.target_test, prediction)
+        if acc > self.accuracy_nb:
+            self.accuracy_nb = acc
 
-# decisiontree: works with encoded data (use of Nadja's methood, encoded set NOT pushed, decisiontree saved as png file in playground
-# BEFORE executing, we have to talk about the encode
-def decision():
-    df =io.read_csv('../data/playground/encoded.csv')
-    score_target_binned = df['perceived_quality']
-    score_data = df.drop(columns=['id','perceived_quality']) 
+    def classify_knn(self, n=5):
+        ''' Classification with K_Nearest_Neighbor. '''
+        knn_estimator = KNeighborsClassifier(n)
+        knn_estimator.fit(self.data_train, self.target_train)
+        prediction = knn_estimator.predict(self.data_test)
+        acc = knn_estimator.score(self.target_test, prediction)
+        if acc > self.accuracy_knn:
+            self.accuracy_knn = acc
 
-    #Decision Tree plot
-    decision_tree = tree.DecisionTreeClassifier(max_depth=3,criterion="gini")
-    decision_tree.fit(score_data,score_target_binned) 
-    dot_data = tree.export_graphviz(decision_tree,feature_names=score_data.columns.values,out_file=None,filled=True,rounded=True)   
-    graph = pydotplus.graph_from_dot_data(dot_data)
-    colors = ('turquoise', 'orange')
-    edges = collections.defaultdict(list)
-    # write in png file
-    for edge in graph.get_edge_list():
-        edges[edge.get_source()].append(int(edge.get_destination()))
- 
-    for edge in edges:
-        edges[edge].sort()    
-    for i in range(2):
-        dest = graph.get_node(str(edges[edge][i]))[0]
-        dest.set_fillcolor(colors[i])
- 
-    graph.write_png('../data/playground/tree.png')
+    def classify_nc(self):
+        ''' Classification with Nearest Centroid. '''
+        nc_estimator = NearestCentroid()
+        nc_estimator.fit(self.data_train, self.target_train)
+        prediction = nc_estimator.predict(self.data_test)
+        acc = nc_estimator.score(self.target_test, prediction)
+        if acc > self.accuracy_nc:
+            self.accuracy_nc = acc
 
-    # (Nico): für Dennis: Das ist der Code der bei mir damals funktioniert hat um das als graph mit graphviz zu exportieren. falls du es nicht brauchst, einfach löschen.
-    '''decision_tree = tree.DecisionTreeClassifier(max_depth=2, max_leaf_nodes=5)
-    decision_tree.fit(iris_binned_and_encoded, iris['Name'])
-
-    dot_data = tree.export_graphviz(decision_tree,
-        feature_names=iris_binned_and_encoded.columns.values,
-        class_names=unique_labels(iris['Name']),
-        filled=True,
-        rounded=True,
-        special_characters=True,
-        out_file=None
-    )
-
-    with open('my_dot.dot', 'w') as f:
-        f.write(dot_data)'''
-
-    #10 Cross-Validation
-    data_train, data_test,target_train,target_test =train_test_split(score_data,score_target_binned,test_size=0.3,random_state=42, stratify= score_target_binned)
-    print(data_train.head())
-    accuracy_rating = cross_val_score(decision_tree,score_data,score_target_binned,cv = 10, scoring ='accuracy')
-    print(accuracy_rating.mean())
-  
-def knn(dataset):
-    '''KNN'''
-    encoder = OrdinalEncoder()
-    dataset_encoded = encoder.fit_transform(dataset)
-    listings_data=dataset_encoded.drop(columns=['id','perceived_quality'])
-    listings_target= dataset_encoded['perceived_quality']
-
-    data_train, data_test, target_train, target_test = io.split_dataset_regular(listings_data,listings_target)
-
-    knn_estimator = KNeighborsClassifier(4)
-    knn_estimator.fit(data_train, target_train)
-
-    prediction = knn_estimator.predict(data_test)
-    #print('Prediction of KNN Classifier:{}'.format(predict))
-
-    accuracy = accuracy_score(target_test, prediction)
-    print('Accuracy of KNN Classifier:{}'.format(accuracy))
-
-def nearest_centroid(dataset):
-    encoder = OrdinalEncoder()
-    dataset_encoded = encoder.fit_transform(dataset)
-    listings_data=dataset_encoded.drop(columns=['id','perceived_quality'])
-    listings_target= dataset_encoded['perceived_quality']
-
-    data_train, data_test, target_train, target_test = io.split_dataset_regular(listings_data,listings_target)
-    
-    nearest_cent = NearestCentroid()
-    nearest_cent.fit(data_train, target_train)
-    prediction = nearest_cent.predict(data_test)
-
-    accuracy = accuracy_score(target_test, prediction)
-    print('Accuracy of Nearest Centroid Classifier:{}'.format(accuracy))
-
-
-'''Run classifiers'''
-dataset = io.read_csv('../data/playground/dataset.csv')
-#naive_bayes(dataset)
-#knn(dataset)
-nearest_centroid(dataset)
-
-
+    def classify_svm(self, c, gamma): #, C=1.0, gamma ='auto')
+        ''' Classification with Support Vector Machine. '''
+        svc = SVC(c=c, gamma=gamma)
+        svc.fit(self.data_train, self.target_train)
+        prediction = svc.predict(self.data_test)
+        acc = svc.score(self.target_test, prediction)
+        if acc > self.accuracy_svm:
+            self.accuracy_svm = acc

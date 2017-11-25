@@ -159,12 +159,9 @@ class Preprocessor(object):
         ''' Tokenize, stem, remove stopwords and apply TFIDF to given text column. '''
         stem_vectorizer = TfidfVectorizer(tokenizer=StemTokenizer(), stop_words='english', ngram_range=(1,1), min_df=min_df, max_df=max_df)
         stem_matrix = stem_vectorizer.fit_transform(df[col_name])
-        df_tfidf = pd.DataFrame(stem_matrix.toarray(), columns=[col_name + '_' + x for x in stem_vectorizer.get_feature_names()])
-        #print('For ' + str(col_name) + ' with min_df: ' + str(min_df) + ' and max_df: ' + str(max_df) + '\n' + '\n'.join(stem_vectorizer.get_feature_names()))
-        #df.drop(col_name, axis=1, inplace=True)
-        #res = pd.concat([df, df_tfidf], axis=1)
-        #print("Appended " + str(col_name) + ".")
-        #return res
+        cols = [col_name + '_' + x for x in stem_vectorizer.get_feature_names()]
+        print('First idx: ' + str(cols[0]) + ', Last idx: ' + str(cols[-1]))
+        df_tfidf = pd.DataFrame(stem_matrix.toarray(), columns=cols)
         return df_tfidf
         
         #for tfidf, word in self.get_word_freq(stem_matrix, stem_vectorizer)[:20]:
@@ -243,8 +240,8 @@ class Preprocessor(object):
         self.listings.drop(['transit', 'house_rules', 'description', 'neighborhood_overview'], axis=1, inplace=True)
 
         # After all processing steps are done, write the listings file to the playground (this will be changed to ../data/final/_.csv)
-        print('#Examples in the end: ' + str(len(self.listings))) # Printing the number of resulting examples for testing purposes and validation
-        io.write_csv(self.listings, '../data/playground/dataset.csv')
+        print('#Examples in the end: ' + str(len(self.listings)) + '\n#Columns in the end: ' + str(len(self.listings.columns))) # Printing the number of resulting examples for testing purposes and validation
+        io.write_csv(self.listings, '../data/final/dataset.csv')
 
     @staticmethod
     def prepare_listings_data(listings):
