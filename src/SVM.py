@@ -124,7 +124,7 @@ def start_GridSearch(parameters, data, target, use_cv):
 
 def fine_grid_search(data, target, use_cv):
     parameters = {
-        'kernel':[ 'rbf'],
+        'kernel': ['rbf'],
         'C': [0.1, 0.2, 0.3, 2**(-5), 0.4, 0.5, 0.6, 0.7],# penalty 
         'gamma': [2**(-17),2**(-16),2**(-15),2**(-14),2**(-13),2**(-12),2**(-11),2**(-10),2**(-9),2**(-8),2**(-7)]
     }
