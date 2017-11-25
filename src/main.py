@@ -77,6 +77,8 @@ def main(renew_listings=False):
         #classifier.classify_knn(n=kn)
     classifier.classify_nb()
     classifier.classify_svm()
+    classifier.classify_knn()
+    classifier.classify_nc()
     #..
     print(classifier)
 

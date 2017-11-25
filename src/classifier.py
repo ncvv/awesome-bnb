@@ -69,7 +69,7 @@ class Classifier(object):
         knn_estimator = KNeighborsClassifier(n)
         knn_estimator.fit(self.data_train, self.target_train)
         prediction = knn_estimator.predict(self.data_test)
-        acc = knn_estimator.score(self.target_test, prediction) * 100
+        acc = accuracy_score(self.target_test, prediction) * 100
         if acc > self.accuracy_knn:
             self.accuracy_knn = acc
 
@@ -78,7 +78,7 @@ class Classifier(object):
         nc_estimator = NearestCentroid()
         nc_estimator.fit(self.data_train, self.target_train)
         prediction = nc_estimator.predict(self.data_test)
-        acc = nc_estimator.score(self.target_test, prediction) * 100
+        acc = accuracy_score(self.target_test, prediction) * 100
         if acc > self.accuracy_nc:
             self.accuracy_nc = acc
 
