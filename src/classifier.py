@@ -9,6 +9,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.svm import SVC
 from sklearn import tree
+from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import GridSearchCV
 
 import io_util as io
 
@@ -72,7 +74,7 @@ class Classifier(object):
 
         if self.display_columns:
             print('Columns:\n' + '\n'.join(list(self.data_encoded)) + '\n')
-
+    
         self.data_train, self.data_test, self.target_train, self.target_test = train_test_split(self.data_encoded, target, test_size=0.2, random_state=42, stratify=target)
 
     def classify_nb(self): 
@@ -114,7 +116,7 @@ class Classifier(object):
 
     def classify_dt(self):
         ''' Clasificiation with Decision Tree'''
-        import graphviz
+        #import graphviz
         import subprocess
         import time
         from sklearn.utils.multiclass import unique_labels
@@ -122,7 +124,7 @@ class Classifier(object):
         decision_tree = tree.DecisionTreeClassifier(max_depth=3,criterion="gini")
         decision_tree.fit(self.data_train,self.target_train) 
         prediction = decision_tree.predict(self.data_test)
-        
+        '''
         dot_data = tree.export_graphviz(decision_tree,
             feature_names=self.data_encoded.columns.values,
             class_names=unique_labels(self.dataset['perceived_quality']),
@@ -131,7 +133,7 @@ class Classifier(object):
             special_characters=True,
             out_file=None
         )
-
+        '''
         #with open('../data/plots/tree.dot', 'w') as f:
         #    f.write(dot_data)
         #time.sleep(2)
@@ -181,3 +183,52 @@ class Classifier(object):
 
     def __drop(self, start, end):
         self.data_encoded.drop(self.data_encoded.columns[self.data_encoded.columns.get_loc(start): self.data_encoded.columns.get_loc(end) + 1], axis=1, inplace=True)
+
+    def para_tuning_SVM(self, loose, fine):
+        # TODO
+        # on whole data set or only on training? 
+        # - save path of final file
+        self.data_encoded = io.read_csv('../data/final/dataset_2_encoded.csv')
+        # we need the whole dataset or not?
+        target_label = self.data_encoded['perceived_quality'] 
+        self.data_encoded.drop('perceived_quality', axis=1, inplace=True)
+        self.data_encoded.drop('id', axis=1, inplace=True)
+
+        print('Test on small Dataset')
+        target_label = target_label[:1000]
+        data = self.data_encoded[:1000]
+
+        if (loose):
+            print('Lose Grid Search')
+            self.loose_grid_search_SVM(data= self.data_encoded, target=target_label)
+        if (fine):
+            print('Fine Grid Search')
+            self.fine_grid_search_SVM(data=self.data_encoded, target=target_label)
+
+    def loose_grid_search_SVM(self, data, target):
+        parameters = {
+            'kernel':[ 'rbf'],
+            'C': [2**(-5),2**(-3),2**(-1),2**(1),2**(3),2**(5),2**(7),2**(9),2**(11),2**(13),2**(15), 1, 20],# penalty 
+            'gamma': [2**(-15),2**(-13),2**(-11),2**(-9),2**(-7),2**(-5),2**(-3),2**(-1),2**(1),2**(3),2**(5), 'auto']#Kernel coefficient for ‘rbf’=> if ‘auto’ then 1/n_features used
+        }
+
+        start_GridSearch_SVM(parameters, data, target)
+
+    def fine_grid_search_SVM(self, data, target):
+        #TODO again after loose Grid Search
+        parameters = {
+            'kernel': ['rbf'],
+            'C': [0.1, 0.2, 0.3, 2**(-5), 0.4, 0.5, 0.6, 0.7],# penalty 
+            'gamma': [2**(-17),2**(-16),2**(-15),2**(-14),2**(-13),2**(-12),2**(-11),2**(-10),2**(-9),2**(-8),2**(-7)]
+        }
+        self.start_GridSearch_SVM(parameters, data, target)
+
+    def start_GridSearch_SVM(self,parameters, data, target):
+        clf = SVC()
+        print('using !0 Fold Cross-Validation')
+        cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=42) 
+        grid_search_estimator = GridSearchCV(clf, parameters, scoring='accuracy', cv=cv)
+        grid_search_estimator.fit(data, target)
+
+        print("best score is {} with params {}".format(grid_search_estimator.best_score_, grid_search_estimator.best_params_ ))
+

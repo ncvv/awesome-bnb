@@ -4,57 +4,43 @@ Tasks:
     0X -: zugewiesen, noch nicht erledigt
 
 QUESTIONS:
-classifier2 - wo werden später die parameter für die Classifier übergeben? oder sind die später fest gecoded?
+Para tuning auf welchen daten ? encoded und best pred data set? kein train and test split?
 
 
 
 ROADMAP:
-17 - alle  Spalten die Preise enthalten normalisieren [4] [NICO]
-18 - Mail an Sven [HELENE]
-19 - Classifier Evaluation - wie sollen wir das machen? Confusion Matrix , Classification Report? incl F1 Score
-    in eine Methode schreiben? - reuse
+01 - Test best Dataset 
+02 - Para tuning
+TBA - vll as ein oder andere Attribut ausschließen
+TBA - Classifier Evaluation - wie sollen wir das machen? Confusion Matrix , Classification Report? incl F1 Score
+    in eine Methode schreiben? - reuse -> Methode schreiben?
 20 - Tiefe Knn und - beste Werte bestimmen [KERSTIN]
-21 - balance data? Training data balancen -> für  precison, recall, f1 report aber keine accuracy - siehe Projekt Intro
+TBA - balance data? Training data balancen -> für  precison, recall, f1 report aber keine accuracy - siehe Projekt Intro
     in eine Methode packen - reuse
-22 - 10 Fold Cross Validation  for Accuracy, F1 Score and AUC [KERSTIN]
+TBA - 10 Fold Cross Validation  for Accuracy, F1 Score and AUC [KERSTIN]
 23 - Tiefe Decision Tree [DENNIS]
-24 - classifier2 - encode and split : encoder abändern in OneHotEnoder (Sven) aber Achtung nicht bei allen sinnvol? & Flut an Spalten
-25  - C & Gamma ausnorden  [NADJA]
-
-DOC:
-1.Application area and goals [aus der Anmeldung und erweitern] [Kerstin und Dennis ]
-2.Structure and size of the data set (minimum 1 page)[Nadja & Helene]
-3.Preprocessing [Nico]		
-4.Data Mining
-    a) including evaluation setup and evaluation results	
-    b) including different approaches and parameter settings that you tried
-    c) including discussion of the results
 
 
-
+NO - classifier2 - encode and split : encoder abändern in OneHotEnoder (Sven) aber Achtung nicht bei allen sinnvol? & Flut an Spalten
 NO - Straßen auf Bezirk Mappen -> wir haben sowohl Adressen als auch Bezirke in der Datei, also müssen wir das glaub nicht machen 
-05 - AT THE END  - Daten Visualisieren - Heatmap [Helene]
-FRAGEN FÜR DIE REVIEW SESSION MIT DEN PROFS - BIS SONNTAG ABEND SAMMELN
 
 
-01 - Listings, reviews preprocessing - Stemming usw durchführen [NICO]
-02 - Label aus den Ratings erstellen  [! Ratings überwiegend gut]
-03? - mit den REviews - nur CV da nicht für neue
-
-!! vll kurz vor dem anwenden einer Methode das ein oder andere Attribut ausschließen
-07 - KMEANS
-08 - Number of Reviews <=3 ausschließen
-09 - Verschiedene Datasets mit verschiedenen Anzahlen an Labels bereitstellen [NICO]
-10 - Grid Search CV ansehen
-11 - KMEANS
-Die folgenden Classifier mit Kurven und so plotten:
-1 File anlegen und dann da die classification für die verschiedenen Listings benutzen
-12 - KNN [KERSTIN]
-13 - Naive Bayes [HELENE]
-TBA - Nearest Centroid []
-15 - Support Vector machines [Decision Boundaries] [NADJA]
-16 - Decision Trees [DENNIS]
-
+DONE - AT THE END  - Daten Visualisieren - Heatmap [Helene]
+DONE - alle  Spalten die Preise enthalten normalisieren [4] [NICO]
+DONE - KMEANS
+DONE - Number of Reviews <=3 ausschließen
+DONE - Verschiedene Datasets mit verschiedenen Anzahlen an Labels bereitstellen [NICO]
+DONE - Grid Search CV ansehen
+DONE - KMEANS
+DONE - KNN [KERSTIN]
+DONE - Naive Bayes [HELENE]
+DONE - Nearest Centroid []
+DONE - Support Vector machines [Decision Boundaries] [NADJA]
+DONE - Decision Trees [DENNIS]
+DONE  - C & Gamma ausnorden  [NADJA]
+DONE - Listings, reviews preprocessing - Stemming usw durchführen [NICO]
+DONE - Label aus den Ratings erstellen  [! Ratings überwiegend gut]
+DONE - mit den REviews - nur CV da nicht für neue
 DONE - saemtliche reviews raus bis auf bis auf 'review_scores_rating'
 DONE - nur EN reviews [Kerstin]
 DONE host location make the values binary - 1 in london 0 - outside london [Dennis]
@@ -76,8 +62,8 @@ DONE was machen wir mit square feet? Column nicht ausgefüllt [Nico] -> hab die 
 DONE wie errechnet sich review-score [Helene] -> Bewertungen setzen sich nicht zusammen aus 5 unter review scores zu einem übergeordneten, der overall score wird separat angegeben
 DONE Einträge raus bei denen host_id oder host_name null [Nico] -> method calls of io.remove_empty_line_df in Preprocessor.process()
 DONE - ohne Reviews - dann können wir mit den Eigenschaften der Wohnung das Rating vorhersagen
-TBA  reviews_xx wie damit umgehen? -> Einmal classification mit und ohne reviews, da halt jeweils drin/raus
-TBA  evtl. raus neighbourhood -> Mal mit/ohne probieren
+NO  reviews_xx wie damit umgehen? -> Einmal classification mit und ohne reviews, da halt jeweils drin/raus
+NO  evtl. raus neighbourhood -> Mal mit/ohne probieren
 
 
 
