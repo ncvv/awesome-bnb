@@ -1,25 +1,20 @@
 ''' Module containing methods for classification and evaluation of classifiers. '''
 import os
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
+import numpy as np
+from scipy import interp
 from category_encoders.ordinal import OrdinalEncoder
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, roc_curve, auc, classification_report, confusion_matrix, roc_curve
+from sklearn.model_selection import train_test_split, cross_val_predict
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.svm import SVC
 from sklearn import tree
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import GridSearchCV
-
-#import numpy as np
-#from sklearn.metrics import roc_curve
-#from sklearn.metrics import confusion_matrix
-#from sklearn.metrics import classification_report
-#from sklearn.model_selection import cross_val_predict
-#from scipy import interp
-#from sklearn.metrics import roc_curve, auc
+from sklearn.utils.multiclass import unique_labels
 
 import io_util as io
 
@@ -42,19 +37,10 @@ class Classifier(object):
         self.accuracy_svm = 0
         self.accuracy_nc = 0
 
-        #self.clas_rep_nb = "?"
-        #self.confusion_ma_nb = "?"
-        #self.clas_rep_knn = "?"
-        #self.confusion_ma_knn = "?"
-        #self.clas_rep_dt = "?"
-        #self.confusion_ma_dt = "?"
-        #self.clas_rep_svm = "?"
-        #self.confusion_ma_svm = "?"
-        #self.clas_rep_nc = "?"
-        #self.confusion_ma_nc = "?"
-
+        self.binary_labels = ["Bad", "Good"]
         self.long_tfidf = long_tfidf
         self.display_columns = display_columns
+        self.roc_estimators = {}
         
         self.encode_and_split(path)
 
@@ -67,8 +53,6 @@ class Classifier(object):
                "\nAccuracy SVM: " + '{0:.2f}%'.format(self.accuracy_svm) +
                "\nAccuracy NC:  " + '{0:.2f}%'.format(self.accuracy_nc)  +
                "\n\nMax.: " + '{0:.2f}%'.format(max(self.accuracy_nb, self.accuracy_knn, self.accuracy_dt, self.accuracy_svm, self.accuracy_nc)))
-               #"\nClassification Report NB"+ '{0:.2f}%'.format(self.confusion_ma_nb) +
-               #"\n\nConfusion Matrix NB"+ '{0:.2f}%'.format(self.clas_rep_nb)
 
     def encode_and_split(self, path):
         ''' Encode datatset and split it into training and test data. '''
@@ -99,54 +83,101 @@ class Classifier(object):
     
         self.data_train, self.data_test, self.target_train, self.target_test = train_test_split(self.data_encoded, target, test_size=0.2, random_state=42, stratify=target)
 
+    def __drop(self, start, end):
+        self.data_encoded.drop(self.data_encoded.columns[self.data_encoded.columns.get_loc(start): self.data_encoded.columns.get_loc(end) + 1], axis=1, inplace=True)
+
+    def __print_cm(self, y_true, y_pred, labels, print_label):
+        cm = confusion_matrix(y_true, y_pred)
+        column_width = max([len(str(x)) for x in labels] + [5])  # 5 is value length
+        print("Confusion Matrix for " + print_label + ":")
+        #report = " " * column_width + " " + "{:_^{}}".format("prediction", column_width * len(labels))+ "\n"
+        report = " " * column_width + " ".join(["{:>{}}".format(label, column_width) for label in labels]) + "\n"
+        for i, label1 in enumerate(labels):
+            report += "{:>{}}".format(label1, column_width) + " ".join(["{:{}d}".format(cm[i, j], column_width) for j in range(len(labels))]) + "\n"
+        print(report)
+
+    def __print_cr(self, y_true, y_pred, target_names, print_label):
+        print("Classification Report for " + print_label + ":")
+        print(classification_report(y_true, y_pred, target_names=target_names))
+
+    def print_roc(self):
+        for label, estimator in self.roc_estimators.items():
+            estimator.fit(self.data_train, self.target_train)
+            proba_for_each_class = estimator.predict_proba(self.data_test)
+
+            fpr, tpr, thresholds = roc_curve(self.target_test, proba_for_each_class[:,1])
+
+            plt.plot(fpr, tpr, label=label)
+
+        plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Luck', alpha=.8)
+
+        plt.legend()
+        plt.show()
+
     def classify_nb(self): 
         ''' Classification with Naive Bayes. '''
+        cl_label = "Naive Bayes"
         naive_bayes = GaussianNB()
         naive_bayes.fit(self.data_train, self.target_train)
         prediction = naive_bayes.predict(self.data_test)
         acc = accuracy_score(self.target_test, prediction) * 100
-        #clas_rep_nb = classification_report(self.target_test, prediction)
-        #confusion_ma_nb = confusion_matrix(self.target_test, prediction)
         if acc > self.accuracy_nb:
             self.accuracy_nb = acc
+        self.__print_cm(self.target_test, prediction, labels=self.binary_labels, print_label=cl_label)
+        self.__print_cr(self.target_test, prediction, target_names=self.binary_labels, print_label=cl_label)
+        self.roc_estimators[cl_label] = naive_bayes
+        print('-' * 52)
 
-    def classify_knn(self, n=3):
+    def classify_knn(self, n=3, display_matrix=False):
         ''' Classification with K_Nearest_Neighbor. '''
+        cl_label = "k-Nearest Neighbors"
         knn_estimator = KNeighborsClassifier(n)
         knn_estimator.fit(self.data_train, self.target_train)
         prediction = knn_estimator.predict(self.data_test)
         acc = accuracy_score(self.target_test, prediction) * 100
-        #clas_rep_knn = classification_report(self.target_test, prediction)
-        #confusion_ma_knn = confusion_matrix(self.target_test, prediction)
         if acc > self.accuracy_knn:
             self.accuracy_knn   = acc
             self.accuracy_knn_n = n
+        if display_matrix:
+            self.__print_cm(self.target_test, prediction, labels=self.binary_labels, print_label=cl_label)
+            self.__print_cr(self.target_test, prediction, target_names=self.binary_labels, print_label=cl_label)
+            print('-' * 52)
+        self.roc_estimators[cl_label] = knn_estimator
 
     def classify_nc(self):
         ''' Classification with Nearest Centroid. '''
+        cl_label = "Nearest Centroid"
         nc_estimator = NearestCentroid()
         nc_estimator.fit(self.data_train, self.target_train)
         prediction = nc_estimator.predict(self.data_test)
         acc = accuracy_score(self.target_test, prediction) * 100
-        #clas_rep_nc = classification_report(self.target_test, prediction)
-        #confusion_ma_nc = confusion_matrix(self.target_test, prediction)
         if acc > self.accuracy_nc:
             self.accuracy_nc = acc
+        self.__print_cm(self.target_test, prediction, labels=self.binary_labels, print_label=cl_label)
+        self.__print_cr(self.target_test, prediction, target_names=self.binary_labels, print_label=cl_label)
+        print('-' * 52)
 
-    def classify_svm(self): #, C=1.0, gamma ='auto')
+    def classify_svm(self, display_roc=False): #, C=1.0, gamma ='auto')
         ''' Classification with Support Vector Machine. '''
-        svm_estimator = SVC()
+        cl_label = "Support Vector Machine"
+        if not display_roc:
+            svm_estimator = SVC()
+        else:
+            svm_estimator = SVC(probability=True)
+            self.roc_estimators[cl_label] = svm_estimator
         svm_estimator.fit(self.data_train, self.target_train)
         prediction = svm_estimator.predict(self.data_test)
         acc = accuracy_score(self.target_test, prediction) * 100
-        #clas_rep_svm = classification_report(self.target_test, prediction)
-        #confusion_ma_svm = confusion_matrix(self.target_test, prediction)
         if acc > self.accuracy_svm:
             self.accuracy_svm = acc
+        self.__print_cm(self.target_test, prediction, labels=self.binary_labels, print_label=cl_label)
+        self.__print_cr(self.target_test, prediction, target_names=self.binary_labels, print_label=cl_label)
+        print('-' * 52)
 
     def classify_dt(self):
         ''' Clasificiation with Decision Tree'''
-        #import graphviz
+        cl_label = "Decision Tree"
+        import graphviz
         import subprocess
         import time
         from sklearn.utils.multiclass import unique_labels
@@ -154,7 +185,7 @@ class Classifier(object):
         decision_tree = tree.DecisionTreeClassifier(max_depth=3,criterion="gini")
         decision_tree.fit(self.data_train,self.target_train) 
         prediction = decision_tree.predict(self.data_test)
-        '''
+
         dot_data = tree.export_graphviz(decision_tree,
             feature_names=self.data_encoded.columns.values,
             class_names=unique_labels(self.dataset['perceived_quality']),
@@ -163,18 +194,21 @@ class Classifier(object):
             special_characters=True,
             out_file=None
         )
-        '''
+
+        # only works on Unix?
         #with open('../data/plots/tree.dot', 'w') as f:
         #    f.write(dot_data)
         #time.sleep(2)
 
-        #subprocess.call(['dot -Tpng ../data/plots/tree.dot -o ../data/plots/image.png'], shell=True)
+        #subprocess.call(['dot -Tpng ' + io.get_universal_path('../data/plots/tree.dot') + ' -o ' + io.get_universal_path('../data/plots/image.png')], shell=True)
 
         acc = accuracy_score(self.target_test,prediction) * 100
-        #clas_rep_dt = classification_report(self.target_test, prediction)
-        #confusion_ma_dt = confusion_matrix(self.target_test, prediction)
         if acc > self.accuracy_dt:
             self.accuracy_dt = acc
+        self.__print_cm(self.target_test, prediction, labels=self.binary_labels, print_label=cl_label)
+        self.__print_cr(self.target_test, prediction, target_names=self.binary_labels, print_label=cl_label)
+        self.roc_estimators[cl_label] = decision_tree
+        print('-' * 52)
 
     def exclude_amenity_columns(self):
         start = "Amenity_TV"
@@ -213,9 +247,7 @@ class Classifier(object):
         end = "house_rules_use"
         self.__drop(start, end)
 
-    def __drop(self, start, end):
-        self.data_encoded.drop(self.data_encoded.columns[self.data_encoded.columns.get_loc(start): self.data_encoded.columns.get_loc(end) + 1], axis=1, inplace=True)
-
+    # Parameter Tuning SVM
     def para_tuning_SVM(self, loose, fine):
         # TODO
         # on whole data set or only on training? 
@@ -230,10 +262,10 @@ class Classifier(object):
         target_label = target_label[:1000]
         data = self.data_encoded[:1000]
 
-        if (loose):
+        if loose:
             print('Lose Grid Search')
             self.loose_grid_search_SVM(data= self.data_encoded, target=target_label)
-        if (fine):
+        if fine:
             print('Fine Grid Search')
             self.fine_grid_search_SVM(data, target=target_label)
 
@@ -244,7 +276,7 @@ class Classifier(object):
             'gamma': [2**(-15),2**(-13),2**(-11),2**(-9),2**(-7),2**(-5),2**(-3),2**(-1),2**(1),2**(3),2**(5), 'auto']#Kernel coefficient for ‘rbf’=> if ‘auto’ then 1/n_features used
         }
 
-        self.start_GridSearch_SVM(parameters, data, target)
+        self.start_gridsearch_svm(parameters, data, target)
 
     def fine_grid_search_SVM(self, data, target):
         #TODO again after loose Grid Search
@@ -253,9 +285,9 @@ class Classifier(object):
             'C': [0.1, 0.2, 0.3, 2**(-5), 0.4, 0.5, 0.6, 0.7],# penalty 
             'gamma': [2**(-17),2**(-16),2**(-15),2**(-14),2**(-13),2**(-12),2**(-11),2**(-10),2**(-9),2**(-8),2**(-7)]
         }
-        self.start_GridSearch_SVM(parameters, data, target)
+        self.start_gridsearch_svm(parameters, data, target)
 
-    def start_GridSearch_SVM(self,parameters, data, target):
+    def start_gridsearch_svm(self, parameters, data, target):
         clf = SVC()
         print('using 10 Fold Cross-Validation')
         cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=42) 
@@ -263,59 +295,3 @@ class Classifier(object):
         grid_search_estimator.fit(data, target)
 
         print("best score is {} with params {}".format(grid_search_estimator.best_score_, grid_search_estimator.best_params_ ))
-
-        #def roc_curve(self, n=5):
-    #    knn_estimator = KNeighborsClassifier(n)
-    #    knn_estimator.fit(self.data_train, self.target_train)
-    #    proba_for_each_class = knn_estimator.predict_proba(self.data_test)
-    #    fpr, tpr, thresholds = roc_curve(self.target_test, proba_for_each_class[:,1], pos_label='good')
-
-    #    plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Luck', alpha=.8)
-    #    plt.plot(fpr,tpr,label='K-NN')
-
-    #    plt.legend()
-    #    plt.show() 
-
-    #def prediction(self):
-    #    methods = [[decision_tree, svm_estimator, nc_estimator, naive_bayes, knn_estimator]]
-    #    for method in methods:
-    #        predicted = cross_val_predict(method, data_encoded, target, cv = cv)
-    #        print("predicted value {} with method {}".format(predicted, method))
-
-    #def postprocess(self):
-        #data_target = np.array([x.decode('ascii') for x in self.data_encoded['perceived_quality'].values])
-        #data_data = pd.get_dummies(self.data_encoded.drop('perceived_quality', axis=1))
-        #print(data_data.head())
-        #print(data_target.head())
-
-    #def avg_roc(cv, estimator, data, target, pos_label):
-    #    mean_fpr = np.linspace(0, 1, 100)
-    #    tprs = []
-    #    aucs = []    
-    #    for train_indices, test_indices in cv.split(data, target):
-    #        train_data, train_target = data[train_indices], target[train_indices]
-    #        estimator.fit(train_data, train_target)
-        
-    #        test_data, test_target = data[test_indices], target[test_indices]
-    #        decision_for_each_class = estimator.predict_proba(test_data) 
-    
-    #        fpr, tpr, thresholds = roc_curve(test_target, decision_for_each_class[:,1], pos_label=pos_label)
-    #        tprs.append(interp(mean_fpr, fpr, tpr))
-    #        tprs[-1][0] = 0.0 
-    #        aucs.append(auc(fpr, tpr))        
-        
-    #    mean_tpr = np.mean(tprs, axis=0)
-    #    mean_tpr[-1] = 1.0
-    #    mean_auc = auc(mean_fpr, mean_tpr)
-    #    std_auc = np.std(aucs)    
-    #    return mean_fpr, mean_tpr, mean_auc, std_auc
-
-    #def plot_roc_curve(self):
-    #    mean_fpr, mean_tpr, mean_auc, std_auc = avg_roc(cv, knn_estimator, data_data.values, data_target, 'Good')
-    #    plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Luck', alpha=.8)
-    #    plt.plot(mean_fpr,mean_tpr,label='K-NN')
-
-    #    plt.legend()
-    #    plt.show()
-
-

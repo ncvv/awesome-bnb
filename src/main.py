@@ -36,28 +36,17 @@ def main(renew_listings=False):
     classifier = cl.Classifier(dataset, encoded_file_path, long_tfidf=long_tfidf, display_columns=False)
     for kn in range(2, 7):
         classifier.classify_knn(n=kn)
+    classifier.classify_knn(n=classifier.accuracy_knn_n, display_matrix=True) # Leave as is, prints the CM and CR for kNN's best n.
     classifier.classify_nb()
-    classifier.classify_svm()
+    classifier.classify_svm(display_roc=False)
     classifier.classify_nc()
     classifier.classify_dt()
     print(classifier)
+    #classifier.print_roc()
     
-    #******* Para tuning
+    # Parameter Tuning SVM
     #classifier.para_tuning_SVM( loose=False, fine=True)
     #classifier.para_tuning_SVM( loose=True, fine=False)
-    #print(classifier)
-
-    ####Prediction
-    #classifier.prediction()
-    #print(classifier)
-
-    ####AUC
-    #classifier.roc_curve()
-    #classifier.postprocess()
-    #classifier.avg_roc()
-    #classifier.plot_roc_curve()
-    #print(classifier)
-
 
 if __name__ == '__main__':
     if sys.argv[1:]:
