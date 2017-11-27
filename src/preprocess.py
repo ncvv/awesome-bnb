@@ -3,26 +3,16 @@
     tokenizing, stemming as well as stopword removal. '''
 
 import re
+import time
 import ast
 
 from langdetect import detect
-
-import io_util as io
-
 import pandas as pd
-
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.stem.porter import PorterStemmer
 
-class StemTokenizer(object):
-
-    def __init__(self):
-        self.stemmer = PorterStemmer()
-        self.token_pattern = re.compile(r"(?u)\b\w\w+\b")
-
-    def __call__(self, doc):
-        return [self.stemmer.stem(t) for t in self.token_pattern.findall(doc)]
+import io_util as io
 
 class Preprocessor(object):
     ''' Preprocesses data with different methods. '''
@@ -45,6 +35,7 @@ class Preprocessor(object):
         num_apts = len(ids)
         for i in ids.tolist():
             url = air_url + str(i)
+            time.sleep(2)
             try:
                 # content-length only in header if listing is not available anymore (not on Air)
                 content_length = self.ses.get(url).headers.__getitem__('content-length')
@@ -268,3 +259,13 @@ class Preprocessor(object):
     @staticmethod
     def get_word_freq(matrix, vectorizer):
         return sorted([(matrix.getcol(idx).sum(), word) for word, idx in vectorizer.vocabulary_.items()], reverse=True)
+
+ class StemTokenizer(object):
+    ''' Class for stemming and tokenizing text. '''
+
+    def __init__(self):
+        self.stemmer = PorterStemmer()
+        self.token_pattern = re.compile(r"(?u)\b\w\w+\b")
+
+    def __call__(self, doc):
+        return [self.stemmer.stem(t) for t in self.token_pattern.findall(doc)]

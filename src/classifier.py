@@ -1,5 +1,6 @@
 ''' Module containing methods for classification and evaluation of classifiers. '''
 import os
+#import matplotlib.pyplot as plt
 
 from category_encoders.ordinal import OrdinalEncoder
 from sklearn.neighbors import KNeighborsClassifier
@@ -11,6 +12,14 @@ from sklearn.svm import SVC
 from sklearn import tree
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import GridSearchCV
+
+#import numpy as np
+#from sklearn.metrics import roc_curve
+#from sklearn.metrics import confusion_matrix
+#from sklearn.metrics import classification_report
+#from sklearn.model_selection import cross_val_predict
+#from scipy import interp
+#from sklearn.metrics import roc_curve, auc
 
 import io_util as io
 
@@ -33,6 +42,17 @@ class Classifier(object):
         self.accuracy_svm = 0
         self.accuracy_nc = 0
 
+        #self.clas_rep_nb = "?"
+        #self.confusion_ma_nb = "?"
+        #self.clas_rep_knn = "?"
+        #self.confusion_ma_knn = "?"
+        #self.clas_rep_dt = "?"
+        #self.confusion_ma_dt = "?"
+        #self.clas_rep_svm = "?"
+        #self.confusion_ma_svm = "?"
+        #self.clas_rep_nc = "?"
+        #self.confusion_ma_nc = "?"
+
         self.long_tfidf = long_tfidf
         self.display_columns = display_columns
         
@@ -47,6 +67,8 @@ class Classifier(object):
                "\nAccuracy SVM: " + '{0:.2f}%'.format(self.accuracy_svm) +
                "\nAccuracy NC:  " + '{0:.2f}%'.format(self.accuracy_nc)  +
                "\n\nMax.: " + '{0:.2f}%'.format(max(self.accuracy_nb, self.accuracy_knn, self.accuracy_dt, self.accuracy_svm, self.accuracy_nc)))
+               #"\nClassification Report NB"+ '{0:.2f}%'.format(self.confusion_ma_nb) +
+               #"\n\nConfusion Matrix NB"+ '{0:.2f}%'.format(self.clas_rep_nb)
 
     def encode_and_split(self, path):
         ''' Encode datatset and split it into training and test data. '''
@@ -83,6 +105,8 @@ class Classifier(object):
         naive_bayes.fit(self.data_train, self.target_train)
         prediction = naive_bayes.predict(self.data_test)
         acc = accuracy_score(self.target_test, prediction) * 100
+        #clas_rep_nb = classification_report(self.target_test, prediction)
+        #confusion_ma_nb = confusion_matrix(self.target_test, prediction)
         if acc > self.accuracy_nb:
             self.accuracy_nb = acc
 
@@ -92,6 +116,8 @@ class Classifier(object):
         knn_estimator.fit(self.data_train, self.target_train)
         prediction = knn_estimator.predict(self.data_test)
         acc = accuracy_score(self.target_test, prediction) * 100
+        #clas_rep_knn = classification_report(self.target_test, prediction)
+        #confusion_ma_knn = confusion_matrix(self.target_test, prediction)
         if acc > self.accuracy_knn:
             self.accuracy_knn   = acc
             self.accuracy_knn_n = n
@@ -102,6 +128,8 @@ class Classifier(object):
         nc_estimator.fit(self.data_train, self.target_train)
         prediction = nc_estimator.predict(self.data_test)
         acc = accuracy_score(self.target_test, prediction) * 100
+        #clas_rep_nc = classification_report(self.target_test, prediction)
+        #confusion_ma_nc = confusion_matrix(self.target_test, prediction)
         if acc > self.accuracy_nc:
             self.accuracy_nc = acc
 
@@ -111,6 +139,8 @@ class Classifier(object):
         svm_estimator.fit(self.data_train, self.target_train)
         prediction = svm_estimator.predict(self.data_test)
         acc = accuracy_score(self.target_test, prediction) * 100
+        #clas_rep_svm = classification_report(self.target_test, prediction)
+        #confusion_ma_svm = confusion_matrix(self.target_test, prediction)
         if acc > self.accuracy_svm:
             self.accuracy_svm = acc
 
@@ -141,6 +171,8 @@ class Classifier(object):
         #subprocess.call(['dot -Tpng ../data/plots/tree.dot -o ../data/plots/image.png'], shell=True)
 
         acc = accuracy_score(self.target_test,prediction) * 100
+        #clas_rep_dt = classification_report(self.target_test, prediction)
+        #confusion_ma_dt = confusion_matrix(self.target_test, prediction)
         if acc > self.accuracy_dt:
             self.accuracy_dt = acc
 
@@ -231,4 +263,59 @@ class Classifier(object):
         grid_search_estimator.fit(data, target)
 
         print("best score is {} with params {}".format(grid_search_estimator.best_score_, grid_search_estimator.best_params_ ))
+
+        #def roc_curve(self, n=5):
+    #    knn_estimator = KNeighborsClassifier(n)
+    #    knn_estimator.fit(self.data_train, self.target_train)
+    #    proba_for_each_class = knn_estimator.predict_proba(self.data_test)
+    #    fpr, tpr, thresholds = roc_curve(self.target_test, proba_for_each_class[:,1], pos_label='good')
+
+    #    plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Luck', alpha=.8)
+    #    plt.plot(fpr,tpr,label='K-NN')
+
+    #    plt.legend()
+    #    plt.show() 
+
+    #def prediction(self):
+    #    methods = [[decision_tree, svm_estimator, nc_estimator, naive_bayes, knn_estimator]]
+    #    for method in methods:
+    #        predicted = cross_val_predict(method, data_encoded, target, cv = cv)
+    #        print("predicted value {} with method {}".format(predicted, method))
+
+    #def postprocess(self):
+        #data_target = np.array([x.decode('ascii') for x in self.data_encoded['perceived_quality'].values])
+        #data_data = pd.get_dummies(self.data_encoded.drop('perceived_quality', axis=1))
+        #print(data_data.head())
+        #print(data_target.head())
+
+    #def avg_roc(cv, estimator, data, target, pos_label):
+    #    mean_fpr = np.linspace(0, 1, 100)
+    #    tprs = []
+    #    aucs = []    
+    #    for train_indices, test_indices in cv.split(data, target):
+    #        train_data, train_target = data[train_indices], target[train_indices]
+    #        estimator.fit(train_data, train_target)
+        
+    #        test_data, test_target = data[test_indices], target[test_indices]
+    #        decision_for_each_class = estimator.predict_proba(test_data) 
+    
+    #        fpr, tpr, thresholds = roc_curve(test_target, decision_for_each_class[:,1], pos_label=pos_label)
+    #        tprs.append(interp(mean_fpr, fpr, tpr))
+    #        tprs[-1][0] = 0.0 
+    #        aucs.append(auc(fpr, tpr))        
+        
+    #    mean_tpr = np.mean(tprs, axis=0)
+    #    mean_tpr[-1] = 1.0
+    #    mean_auc = auc(mean_fpr, mean_tpr)
+    #    std_auc = np.std(aucs)    
+    #    return mean_fpr, mean_tpr, mean_auc, std_auc
+
+    #def plot_roc_curve(self):
+    #    mean_fpr, mean_tpr, mean_auc, std_auc = avg_roc(cv, knn_estimator, data_data.values, data_target, 'Good')
+    #    plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Luck', alpha=.8)
+    #    plt.plot(mean_fpr,mean_tpr,label='K-NN')
+
+    #    plt.legend()
+    #    plt.show()
+
 

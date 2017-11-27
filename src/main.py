@@ -10,6 +10,9 @@ import classifier as cl
 
 def main(renew_listings=False):
     ''' Main method. '''
+    long_tfidf = True
+    num_labels = 2
+    
     if renew_listings:
         listings = io.read_csv('../data/original/listings.csv')
         pp.Preprocessor.prepare_listings_data(listings)
@@ -18,7 +21,7 @@ def main(renew_listings=False):
         listings = io.read_csv('../data/processed/listings_processed.csv')
         listings_text = io.read_csv('../data/processed/listings_text_processed.csv')
         preprocessor = pp.Preprocessor(False, requests.Session(), listings, listings_text, reviews)
-        preprocessor.process()
+        preprocessor.process(num_labels, long_tfidf)
 
     # Classification
     file_name = 'dataset'
@@ -28,10 +31,8 @@ def main(renew_listings=False):
 
     file_name += '_' + str(num_labels)
 
-    if long_tfidf:
-        file_name += '_long_tfidf'
     dataset = io.read_csv('../data/final/' + file_name + '.csv')
-    
+
     encoded_file_path = '../data/final/' + file_name + '_encoded.csv'
     
     print('#Columns: ' + str(len(list(dataset))))
@@ -50,6 +51,18 @@ def main(renew_listings=False):
     #classifier.para_tuning_SVM( loose=False, fine=True)
     #classifier.para_tuning_SVM( loose=True, fine=False)
     #print(classifier)
+
+    ####Prediction
+    #classifier.prediction()
+    #print(classifier)
+
+    ####AUC
+    #classifier.roc_curve()
+    #classifier.postprocess()
+    #classifier.avg_roc()
+    #classifier.plot_roc_curve()
+    #print(classifier)
+
 
 if __name__ == '__main__':
     if sys.argv[1:]:
