@@ -3,6 +3,7 @@
     tokenizing, stemming as well as stopword removal. '''
 
 import re
+import time
 import ast
 
 from langdetect import detect
@@ -34,6 +35,7 @@ class Preprocessor(object):
         num_apts = len(ids)
         for i in ids.tolist():
             url = air_url + str(i)
+            time.sleep(2)
             try:
                 # content-length only in header if listing is not available anymore (not on Air)
                 content_length = self.ses.get(url).headers.__getitem__('content-length')
