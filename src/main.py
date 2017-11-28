@@ -56,6 +56,9 @@ def main(renew_listings=False):
     #classifier.para_tuning_SVM( loose=False, fine=True)
     #classifier.para_tuning_SVM( loose=True, fine=False)
 
+    # Parameter Tuning k-NN
+    classifier.para_tuning_KNN()
+
 if __name__ == '__main__':
     if sys.argv[1:]:
         renew_listings_flag = sys.argv[1]
