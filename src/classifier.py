@@ -25,7 +25,7 @@ class Classifier(object):
     def __init__(self, dataset, path, long_tfidf, display_columns):
         self.dataset = dataset
         self.data_encoded = None
-        self.label =None
+        self.label = None
         self.data_train = None
         self.data_test = None
         self.target_train = None
@@ -103,10 +103,7 @@ class Classifier(object):
         print("Classification Report for " + print_label + ":")
         print(classification_report(y_true, y_pred, target_names=target_names))
 
-    def plot_confusion_matrix(cm, classes,
-                              normalize=False,
-                              title='Confusion matrix',
-                              cmap=plt.cm.Blues):
+    def plot_confusion_matrix(self, cm, classes, normalize=True, title='Confusion Matrix', cmap=plt.cm.Blues):
         """
         This function prints and plots the confusion matrix.
         Normalization can be applied by setting `normalize=True`.
@@ -114,21 +111,19 @@ class Classifier(object):
         plt.imshow(cm, interpolation='nearest', cmap=cmap)
         plt.title(title)
         plt.colorbar()
+
         tick_marks = np.arange(len(classes))
-        plt.xticks(tick_marks, classes, rotation=45)
+        plt.xticks(tick_marks, classes)
         plt.yticks(tick_marks, classes)
 
-        print(cm)
-
-        thresh = cm.max() / 2.
+        thresh = cm.max() / 2
         for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-            plt.text(j, i, cm[i, j],
-                     horizontalalignment="center",
-                     color="white" if cm[i, j] > thresh else "black")
+            plt.text(j, i, cm[i, j], horizontalalignment="center", color="white" if cm[i, j] > thresh else "black")
 
         plt.tight_layout()
         plt.ylabel('True label')
         plt.xlabel('Predicted label')
+        plt.show()
 
     def print_roc(self):
         for label, estimator in self.roc_estimators.items():
@@ -155,6 +150,7 @@ class Classifier(object):
             self.accuracy_nb = acc
         self.__print_cm(self.target_test, prediction, labels=self.binary_labels, print_label=cl_label)
         self.__print_cr(self.target_test, prediction, target_names=self.binary_labels, print_label=cl_label)
+        #self.plot_confusion_matrix(confusion_matrix(self.target_test, prediction), classes=self.binary_labels)
         self.roc_estimators[cl_label] = naive_bayes
         print('-' * 52)
 
@@ -185,7 +181,6 @@ class Classifier(object):
             self.accuracy_nc = acc
         self.__print_cm(self.target_test, prediction, labels=self.binary_labels, print_label=cl_label)
         self.__print_cr(self.target_test, prediction, target_names=self.binary_labels, print_label=cl_label)
-        self.plot_confusion_matrix(confusion_matrix(self.target_test, prediction), classes=self.binary_labels)
         print('-' * 52)
 
     def classify_svm(self, display_roc=False): #, C=1.0, gamma ='auto')
