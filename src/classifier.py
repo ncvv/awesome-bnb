@@ -70,7 +70,7 @@ class Classifier(object):
 
         # Insert drop of single columns here
         #self.data_encoded.drop(['instant_bookable', 'require_guest_profile_picture', 'first_review', 'last_review'], axis=1, inplace=True)
-        
+
         # Insert drop of tfidf/amenity columns here
         self.exclude_amenity_columns()
         #self.exclude_transit_tfidf()
@@ -196,11 +196,11 @@ class Classifier(object):
         )
 
         # only works on Unix?
-        #with open('../data/plots/tree.dot', 'w') as f:
-        #    f.write(dot_data)
-        #time.sleep(2)
+        with open('../data/plots/tree.dot', 'w') as f:
+            f.write(dot_data)
+        time.sleep(2)
 
-        #subprocess.call(['dot -Tpng ' + io.get_universal_path('../data/plots/tree.dot') + ' -o ' + io.get_universal_path('../data/plots/image.png')], shell=True)
+        subprocess.call(['dot -Tpng ' + io.get_universal_path('../data/plots/tree.dot') + ' -o ' + io.get_universal_path('../data/plots/image.png')], shell=True)
 
         acc = accuracy_score(self.target_test,prediction) * 100
         if acc > self.accuracy_dt:
