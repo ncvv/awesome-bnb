@@ -38,7 +38,7 @@ def main(renew_listings=False):
     print('#Rows: ' + str(len(dataset)) + '\n')
     
     classifier = cl.Classifier(dataset, encoded_file_path, long_tfidf=long_tfidf, display_columns=True)
-    '''
+   
     for kn in range(2, 7):
         classifier.classify_knn(n=kn)
     classifier.classify_knn(n=classifier.accuracy_knn_n, display_matrix=True) # Leave as is, prints the CM and CR for kNN's best n.
@@ -48,10 +48,16 @@ def main(renew_listings=False):
     classifier.classify_dt()
     print(classifier)
     #classifier.print_roc()
-    '''
+    
+    # Parameer Tuning DT
+    #classifier.para_tuning_dt()
+
     # Parameter Tuning SVM
     #classifier.para_tuning_SVM( loose=False, fine=True)
-    classifier.para_tuning_SVM( loose=True, fine=False)
+    #classifier.para_tuning_SVM( loose=True, fine=False)
+
+    # Parameter Tuning k-NN
+    classifier.para_tuning_KNN()
 
 if __name__ == '__main__':
     if sys.argv[1:]:
