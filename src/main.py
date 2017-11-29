@@ -53,11 +53,11 @@ def main(renew_listings=False):
     #classifier.para_tuning_dt()
 
     # Parameter Tuning SVM
-    #classifier.para_tuning_SVM( loose=False, fine=True,  use_sample =True) #TODO
-    classifier.para_tuning_SVM( loose=True, fine=False, use_sample=False)
+    #classifier.para_tuning_SVM(loose=False, fine=True,  use_sample=False) #TODO
+    #classifier.para_tuning_SVM(loose=True, fine=False, use_sample=False)
 
     # Parameter Tuning k-NN
-    #classifier.para_tuning_KNN()
+    classifier.para_tuning_knn()
 
 if __name__ == '__main__':
     if sys.argv[1:]:

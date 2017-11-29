@@ -302,9 +302,9 @@ class Classifier(object):
 
     def loose_grid_search_SVM(self, data, target):
         parameters = {
-            'kernel':[ 'rbf'],
-            'C': [2**(-5),2**(-3),2**(-1),2**(1),2**(3),2**(5),2**(7),2**(9),2**(11),2**(13),2**(15), 1, 20],# penalty 
-            'gamma': [2**(-15),2**(-13),2**(-11),2**(-9),2**(-7),2**(-5),2**(-3),2**(-1),2**(1),2**(3),2**(5), 'auto']#Kernel coefficient for ‘rbf’=> if ‘auto’ then 1/n_features used
+            'kernel':['rbf'],
+            'C': [1, 2**(-5), 2**(-3),2**(-1),2**(1),2**(3),2**(5),2**(7),2**(9),2**(11),2**(13),2**(15), 1, 20],# penalty 
+            'gamma': [2**(-9),2**(-7),2**(-5),2**(-3),2**(-1),2**(1),2**(3),2**(5), 'auto']#Kernel coefficient for ‘rbf’=> if ‘auto’ then 1/n_features used
         }
 
         self.start_gridsearch_svm(parameters, data, target)
@@ -320,9 +320,9 @@ class Classifier(object):
 
     def start_gridsearch_svm(self, parameters, data, target):
         clf = SVC()
-        print('using 10 Fold Cross-Validation')
-        cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=42) 
-        grid_search_estimator = GridSearchCV(clf, parameters, scoring='accuracy', cv=cv)
+        print('using 3 Fold Cross-Validation')
+        cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42) 
+        grid_search_estimator = GridSearchCV(clf, parameters, scoring='accuracy', cv=cv, verbose=100, n_jobs=-1)
         grid_search_estimator.fit(data, target)
 
         print("best score is {} with params {}".format(grid_search_estimator.best_score_, grid_search_estimator.best_params_ ))
@@ -332,9 +332,9 @@ class Classifier(object):
         target_label = self.label
         decision_tree =tree.DecisionTreeClassifier()
         parameters = {
-        'criterion':['gini', 'entropy'], 
-        'max_depth':[1, 2, 3, 4, 5, 6, 7, 8, None],
-        'min_samples_split' :[2,3,4,5,6,7,8,9]
+            'criterion':['gini', 'entropy'], 
+            'max_depth':[1, 2, 3, 4, 5, 6, 7, 8, None],
+            'min_samples_split' :[2,3,4,5,6,7,8,9]
         }
         stratified = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
         grid_search_estimator = GridSearchCV(decision_tree,parameters,scoring = 'accuracy', cv=stratified)
@@ -343,8 +343,9 @@ class Classifier(object):
         results = grid_search_estimator.cv_results_
         for i in range(len(results['params'])):
             print("{}, {}".format(results['params'][i], results['mean_test_score'][i]))
+    
     # Parameter Tuning k-NN
-    def para_tuning_KNN(self):
+    def para_tuning_knn(self):
         clf = KNeighborsClassifier()
         #parameter = clf.get_params()
         #print(parameter)
@@ -356,12 +357,14 @@ class Classifier(object):
         clf = KNeighborsClassifier()
         print('using 10 Fold Cross-Validation for Classifier k-NN')
         parameters = {
-            'n_neighbors':[2,3,4,5,6,7], 
-            'algorithm':['ball_tree', 'kd_tree', 'brute']
+            'n_neighbors':[3,4,5,6], 
+            'algorithm':['ball_tree', 'kd_tree', 'brute'],
+            'p': [1,2],
+            'weights': ['uniform', 'distance']
         }
-        cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+        cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 
-        grid_search_estimator = GridSearchCV(clf, parameters, scoring='accuracy', cv=cv)
+        grid_search_estimator = GridSearchCV(clf, parameters, scoring='accuracy', cv=cv, verbose=100, n_jobs=-1)
         grid_search_estimator.fit(data,target)
 
         print("best score is {} with params {}".format(grid_search_estimator.best_score_, grid_search_estimator.best_params_ ))
