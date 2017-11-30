@@ -34,7 +34,7 @@ def main(renew_listings=False):
     print('#Rows: ' + str(len(dataset)) + '\n')
     
     encoded_file_path = '../data/final/' + file_name + '_encoded.csv'
-    classifier = cl.Classifier(dataset, encoded_file_path, long_tfidf=long_tfidf, display_columns=False)
+    classifier = cl.Classifier(dataset, encoded_file_path, long_tfidf=long_tfidf, display_columns=False, scoring='accuracy')
     
     # Parameter Tuning
     #classifier.para_tuning_dt()
@@ -43,7 +43,7 @@ def main(renew_listings=False):
     #classifier.para_tuning_nc()
 
     # Classification
-    cross_validate = False
+    cross_validate = True
     for kn in range(2, 7):
         classifier.classify_knn(n=kn)
     classifier.classify_knn(n=classifier.accuracy_knn_n, cross_validate=cross_validate, display_matrix=True) # Leave as is, prints the CM and CR for kNN's best n.

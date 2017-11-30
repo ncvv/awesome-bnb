@@ -24,7 +24,7 @@ import io_util as io
 class Classifier(object):
     ''' Class for classification. '''
 
-    def __init__(self, dataset, path, long_tfidf, display_columns):
+    def __init__(self, dataset, path, long_tfidf, display_columns, scoring):
         self.dataset = dataset
         self.label = None
         self.data_encoded = None
@@ -42,6 +42,8 @@ class Classifier(object):
         self.accuracy_dt = 0
         self.accuracy_svm = 0
         self.accuracy_nc = 0
+
+        self.scoring = scoring
 
         self.binary_labels = ["Bad", "Good"]
         self.long_tfidf = long_tfidf
@@ -164,7 +166,7 @@ class Classifier(object):
         prediction = naive_bayes.predict(self.data_test)
 
         if cross_validate:
-            self.accuracy_nb = float("{:.4f}".format(cross_val_score(naive_bayes, self.data_encoded, self.label, cv=10, scoring='accuracy').mean())) * 100
+            self.accuracy_nb = float("{:.4f}".format(cross_val_score(naive_bayes, self.data_encoded, self.label, cv=10, scoring=self.scoring).mean())) * 100
         else:
             acc = accuracy_score(self.target_test, prediction) * 100
             if acc > self.accuracy_nb:
@@ -183,7 +185,7 @@ class Classifier(object):
         prediction = multi_naive_bayes.predict(self.data_test)
 
         if cross_validate:
-            self.accuracy_mnb = float("{:.4f}".format(cross_val_score(multi_naive_bayes, self.data_encoded, self.label, cv=10, scoring='accuracy').mean())) * 100
+            self.accuracy_mnb = float("{:.4f}".format(cross_val_score(multi_naive_bayes, self.data_encoded, self.label, cv=10, scoring=self.scoring).mean())) * 100
         else:
             acc = accuracy_score(self.target_test, prediction) * 100
             if acc > self.accuracy_mnb:
@@ -202,7 +204,7 @@ class Classifier(object):
         prediction = knn_estimator.predict(self.data_test)
 
         if cross_validate:
-            self.accuracy_knn = float("{:.4f}".format(cross_val_score(knn_estimator, self.data_encoded, self.label, cv=10, scoring='accuracy').mean())) * 100
+            self.accuracy_knn = float("{:.4f}".format(cross_val_score(knn_estimator, self.data_encoded, self.label, cv=10, scoring=self.scoring).mean())) * 100
         else:
             acc = accuracy_score(self.target_test, prediction) * 100
             if acc > self.accuracy_knn:
@@ -223,7 +225,7 @@ class Classifier(object):
         prediction = nc_estimator.predict(self.data_test)
         
         if cross_validate:
-            self.accuracy_nc = float("{:.4f}".format(cross_val_score(nc_estimator, self.data_encoded, self.label, cv=10, scoring='accuracy').mean())) * 100
+            self.accuracy_nc = float("{:.4f}".format(cross_val_score(nc_estimator, self.data_encoded, self.label, cv=10, scoring=self.scoring).mean())) * 100
         else:
             acc = accuracy_score(self.target_test, prediction) * 100
             if acc > self.accuracy_nc:
@@ -246,7 +248,7 @@ class Classifier(object):
         prediction = svm_estimator.predict(self.data_test)
 
         if cross_validate:
-            self.accuracy_svm = float("{:.4f}".format(cross_val_score(svm_estimator, self.data_encoded, self.label, cv=10, scoring='accuracy').mean())) * 100
+            self.accuracy_svm = float("{:.4f}".format(cross_val_score(svm_estimator, self.data_encoded, self.label, cv=10, scoring=self.scoring).mean())) * 100
         else:
             acc = accuracy_score(self.target_test, prediction) * 100
             if acc > self.accuracy_svm:
@@ -281,7 +283,7 @@ class Classifier(object):
             subprocess.call(['rm -f ' + io.get_universal_path('../data/plots/tree.dot')], shell=True)
 
         if cross_validate:
-            self.accuracy_dt = float("{:.4f}".format(cross_val_score(decision_tree, self.data_encoded, self.label, cv=10, scoring='accuracy').mean())) * 100
+            self.accuracy_dt = float("{:.4f}".format(cross_val_score(decision_tree, self.data_encoded, self.label, cv=10, scoring=self.scoring).mean())) * 100
         else:
             acc = accuracy_score(self.target_test, prediction) * 100
             if acc > self.accuracy_dt:
