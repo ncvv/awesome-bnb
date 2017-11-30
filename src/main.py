@@ -23,46 +23,44 @@ def main(renew_listings=False):
         preprocessor = pp.Preprocessor(False, requests.Session(), listings, listings_text, reviews)
         preprocessor.process(num_labels, long_tfidf)
 
-    # Classification
     file_name = 'dataset'
-
     file_name += '_' + str(num_labels)
     if long_tfidf:
         file_name += '_long_tfidf'
 
     dataset = io.read_csv('../data/final/' + file_name + '.csv')
-
-    encoded_file_path = '../data/final/' + file_name + '_encoded.csv'
     
     print('#Columns: ' + str(len(list(dataset))))
     print('#Rows: ' + str(len(dataset)) + '\n')
     
+    encoded_file_path = '../data/final/' + file_name + '_encoded.csv'
     classifier = cl.Classifier(dataset, encoded_file_path, long_tfidf=long_tfidf, display_columns=False)
-   
-    #for kn in range(2, 7):
-    #    classifier.classify_knn(n=kn)
-    #classifier.classify_knn(n=classifier.accuracy_knn_n, display_matrix=True) # Leave as is, prints the CM and CR for kNN's best n.
-    #classifier.classify_nb()
-    #classifier.classify_svm(display_roc=False)
-    #classifier.classify_nc()
-    #classifier.classify_dt()
-    #print(classifier)
-    #classifier.print_roc()
     
-    # Parameer Tuning DT
+    # Parameter Tuning
     #classifier.para_tuning_dt()
-
-    # Parameter Tuning SVM
-    classifier.para_tuning_SVM(loose=False, fine=True, use_sample=False) #TODO
     #classifier.para_tuning_SVM(loose=True, fine=False, use_sample=False)
-
-    # Parameter Tuning k-NN
     #classifier.para_tuning_knn()
+    #classifier.para_tuning_nc()
 
-    # Parameter Tuning NC
-    classifier.para_tuning_nc()
+    # Classification
+    for kn in range(2, 7):
+        classifier.classify_knn(n=kn)
+    classifier.classify_knn(n=classifier.accuracy_knn_n, display_matrix=True) # Leave as is, prints the CM and CR for kNN's best n.
+    print('-' * 52)
+    classifier.classify_nb()
+    print('-' * 52)
+    classifier.classify_svm(display_roc=True)
+    print('-' * 52)
+    classifier.classify_nc()
+    print('-' * 52)
+    classifier.classify_dt()
+    print('-' * 52)
+
+    print(classifier)
+    classifier.plot_roc()
 
 if __name__ == '__main__':
+    ''' Usage: ~/src python main.py RENEW_LISTINGS_FLAG\n\n    RENEW_LISTINGS_FLAG determines whether preprocessing and encoding is executed again. '''
     if sys.argv[1:]:
         renew_listings_flag = sys.argv[1]
         main(renew_listings_flag)
