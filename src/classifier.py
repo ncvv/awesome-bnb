@@ -207,7 +207,7 @@ class Classifier(object):
         import time
         from sklearn.utils.multiclass import unique_labels
 
-        decision_tree = tree.DecisionTreeClassifier(max_depth=3,criterion="gini")
+        decision_tree = tree.DecisionTreeClassifier(max_depth=5,criterion="entropy",min_samples_split=2)
         decision_tree.fit(self.data_train,self.target_train) 
         prediction = decision_tree.predict(self.data_test)
 
@@ -334,13 +334,11 @@ class Classifier(object):
             'max_depth':[1, 2, 3, 4, 5, 6, 7, 8, None],
             'min_samples_split' :[2,3,4,5,6,7,8,9]
         }
-        stratified = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+        stratified = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
         grid_search_estimator = GridSearchCV(decision_tree,parameters,scoring = 'accuracy', cv=stratified)
         grid_search_estimator.fit(self.data_encoded,target_label)
         print("best score is {} with params {}".format(grid_search_estimator.best_score_, grid_search_estimator.best_params_ ))
-        results = grid_search_estimator.cv_results_
-        for i in range(len(results['params'])):
-            print("{}, {}".format(results['params'][i], results['mean_test_score'][i]))
+        
     
     # Parameter Tuning k-NN
     def para_tuning_knn(self):
@@ -359,6 +357,30 @@ class Classifier(object):
             'algorithm':['ball_tree', 'kd_tree', 'brute'],
             'p': [1,2],
             'weights': ['uniform', 'distance']
+        }
+        cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+
+        grid_search_estimator = GridSearchCV(clf, parameters, scoring='accuracy', cv=cv, verbose=100, n_jobs=-1)
+        grid_search_estimator.fit(data,target)
+
+        print("best score is {} with params {}".format(grid_search_estimator.best_score_, grid_search_estimator.best_params_ ))
+
+
+    # Parameter Tuning NC
+    def para_tuning_nc(self):
+        clf = NearestCentroid()
+        #parameter = clf.get_params()
+        #print(parameter)
+        target = self.label
+        data = self.data_encoded
+        self.grid_search_nc(data = data, target=target)
+
+    def grid_search_nc(self, data, target):
+        clf = NearestCentroid()
+        print('using 10 Fold Cross-Validation for Classifier NC')
+        parameters = {
+            'metric':['euclidean','l2', 'l1', 'manhattan'], 
+            'shrink_threshold':[None, 0.1,0.2,0.3,0.4,0.5],
         }
         cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 

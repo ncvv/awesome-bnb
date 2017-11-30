@@ -59,6 +59,9 @@ def main(renew_listings=False):
     # Parameter Tuning k-NN
     #classifier.para_tuning_knn()
 
+    # Parameter Tuning NC
+    classifier.para_tuning_nc()
+
 if __name__ == '__main__':
     if sys.argv[1:]:
         renew_listings_flag = sys.argv[1]
